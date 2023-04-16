@@ -1,8 +1,13 @@
 #include <stdlib.h>
 #include <mlx.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <math.h>
 
 # define WINDOW_WIDTH 1280
 # define WINDOW_HEIGHT 720
+# define ABS(x) x >= 0 ? x : -x
+# define PI 3.141592653
 
 typedef struct	s_data {
 	void	*img;
@@ -12,7 +17,7 @@ typedef struct	s_data {
 	int		endian;
 }				t_data;
 
-void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
+void	my_mlx_pixel_put(t_data *data, int x, int y, uint32_t color)
 {
 	char	*dst;
 
@@ -22,12 +27,29 @@ void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 
 void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2)
 {
+	// int	dx = x2 - x1;
+	// int	dy = y2 - y1;
+	int	y_put = y1;
+	int	dir_y = (y2 - y1 > 0) ? 1 : -1;
+	int	dir_x = (x2 - x1 > 0) ? 1 : -1;
+
 	// This is where a line shall be born !
-	(void)y1;
-	(void)y2;
-	for (int i = x1; i <= x2; i++)
+	for (int x = x1; x * dir_x <= x2 * dir_x; x += dir_x)
 	{
-		my_mlx_pixel_put(img_ptr, i, i, 0x00FF5C00);
+		float err = (float)(y2 * (x - x1) - y1 * (x - x2))/(x2 - x1) - (float)y_put;
+		printf("x = %d, err = %.2f\n", x, err);
+		if (ABS(err) > 1)
+			y_put += dir_y;
+		my_mlx_pixel_put(img_ptr, x, y_put, 0x00FF5C00);
+	}
+
+	int x_put = x1;
+	for (int y = y1; y * dir_y <= y2 * dir_y; y += dir_y)
+	{
+		float err = (float)(x2 * (y - y1) - x1 * (y - y2))/(y2 - y1) - (float)x_put;
+		if (ABS(err) > 1)
+			x_put += dir_x;
+		my_mlx_pixel_put(img_ptr, x_put, y, 0x00FF5C00);
 	}
 }
 
@@ -43,8 +65,17 @@ int main(void)
 
 	img_data.addr = mlx_get_data_addr(img_data.img, &img_data.bits_per_pixel, &img_data.line_length, &img_data.endian);
 
-	draw_line(&img_data, 0,0 , WINDOW_HEIGHT, WINDOW_HEIGHT);
-	// my_mlx_pixel_put(&img, 100, 100, 0x00FF5C00);
+	draw_line(&img_data, 0, 0, 4, 2);
+
+	// -- Cool Stuff
+	int i = 0;
+	int cycles = 64;
+	int m = 200;
+	while (i < cycles)
+	{
+		draw_line(&img_data, WINDOW_WIDTH/2, WINDOW_HEIGHT/2, WINDOW_WIDTH/2 + m * cos(i * 2 * PI/cycles), WINDOW_HEIGHT/2 + m * sin(i * 2 * PI/cycles));
+		i++;
+	}
 
 	mlx_put_image_to_window(mlx_ptr, win_ptr, img_data.img, 0, 0);
 	mlx_loop(mlx_ptr);
