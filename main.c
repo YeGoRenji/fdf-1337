@@ -6,7 +6,7 @@
 
 # define WINDOW_WIDTH 1280
 # define WINDOW_HEIGHT 720
-# define ABS(x) x >= 0 ? x : -x
+# define ABS(x) ((x) >= 0 ? (x) : -(x))
 # define PI 3.141592653
 
 typedef struct	s_data {
@@ -36,9 +36,9 @@ void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2)
 	// This is where a line shall be born !
 	for (int x = x1; x * dir_x <= x2 * dir_x; x += dir_x)
 	{
-		float err = (float)(y2 * (x - x1) - y1 * (x - x2))/(x2 - x1) - (float)y_put;
-		printf("x = %d, err = %.2f\n", x, err);
-		if (ABS(err) > 1)
+		int err = (y2 * (x - x1) - y1 * (x - x2)) - y_put * (x2 - x1);
+		printf("x = %d, err = %d\n", x, err);
+		if (ABS(err) >= ABS(x2 - x1))
 			y_put += dir_y;
 		my_mlx_pixel_put(img_ptr, x, y_put, 0x00FF5C00);
 	}
@@ -46,8 +46,8 @@ void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2)
 	int x_put = x1;
 	for (int y = y1; y * dir_y <= y2 * dir_y; y += dir_y)
 	{
-		float err = (float)(x2 * (y - y1) - x1 * (y - y2))/(y2 - y1) - (float)x_put;
-		if (ABS(err) > 1)
+		int err = (x2 * (y - y1) - x1 * (y - y2)) - x_put * (y2 - y1);
+		if (ABS(err) >= ABS(y2 - y1))
 			x_put += dir_x;
 		my_mlx_pixel_put(img_ptr, x_put, y, 0x00FF5C00);
 	}
@@ -69,7 +69,7 @@ int main(void)
 
 	// -- Cool Stuff
 	int i = 0;
-	int cycles = 64;
+	int cycles = 32;
 	int m = 200;
 	while (i < cycles)
 	{
