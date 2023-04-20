@@ -7,7 +7,7 @@
 # define WINDOW_WIDTH 1280
 # define WINDOW_HEIGHT 720
 # define ABS(x) ((x) >= 0 ? (x) : -(x))
-# define PI 3.141592653
+# define PI 3.14159265358979323846
 
 typedef struct	s_data {
 	void	*img;
@@ -35,9 +35,9 @@ void	swap_int(int *a, int *b)
 	*b = tmp;
 }
 
-# define AA 1
+# define AA 0
 
-void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2)
+void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2, uint32_t color)
 {
 	int y_x_flip = 0;
 	int	dir_y = (y2 - y1 > 0) ? 1 : -1;
@@ -56,7 +56,7 @@ void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2)
 	for (int x = x1; x * dir_x <= x2 * dir_x; x += dir_x)
 	{
 		int err = (y2 * (x - x1) - y1 * (x - x2)) - y_put * (x2 - x1);
-		if (ABS(err) > ABS(x2 - x1))
+		if (ABS(err) >= 0.5 * ABS(x2 - x1))
 		{
 			if (AA)
 			{
@@ -68,9 +68,9 @@ void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2)
 			y_put += dir_y;
 		}
 		if (y_x_flip)
-			my_mlx_pixel_put(img_ptr, y_put, x, 0x00FF5C00);
+			my_mlx_pixel_put(img_ptr, y_put, x, color);
 		else
-			my_mlx_pixel_put(img_ptr, x, y_put, 0x00FF5C00);
+			my_mlx_pixel_put(img_ptr, x, y_put, color);
 	}
 }
 
@@ -86,15 +86,16 @@ int main(void)
 
 	img_data.addr = mlx_get_data_addr(img_data.img, &img_data.bits_per_pixel, &img_data.line_length, &img_data.endian);
 
-	draw_line(&img_data, 0, 0, 4, 2);
+	// draw_line(&img_data, 0, 0, WINDOW_WIDTH/4, WINDOW_HEIGHT, 0xFF5C00);
+	// draw_line(&img_data, WINDOW_WIDTH/2, WINDOW_HEIGHT/2, WINDOW_WIDTH/2 - 1, WINDOW_HEIGHT/2 - 100, 0xFF5C00);
 
 	// -- Cool Stuff
 	int i = 0;
-	int cycles = 10000;
+	int cycles = 6;
 	int m = 300;
 	while (i < cycles)
 	{
-		draw_line(&img_data, WINDOW_WIDTH/2, WINDOW_HEIGHT/2, WINDOW_WIDTH/2 + m * cos(i * 2 * PI/cycles), WINDOW_HEIGHT/2 + m * sin(i * 2 * PI/cycles));
+		draw_line(&img_data, WINDOW_WIDTH/2, WINDOW_HEIGHT/2, WINDOW_WIDTH/2 + m * cos(i * 2 * PI/cycles), WINDOW_HEIGHT/2 + m * sin(i * 2 * PI/cycles), ((float)i  / cycles) * 0xFFFFFF);
 		i++;
 	}
 
