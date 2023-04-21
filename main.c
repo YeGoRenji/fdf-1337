@@ -9,7 +9,7 @@
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 #define TAU 6.2831853071795864
 #define AA 1
-#define AA_SHADE 180
+#define AA_SHADE 150
 
 typedef struct	s_data {
 	void	*img;
@@ -37,15 +37,15 @@ void	swap_int(int *a, int *b)
 	*b = tmp;
 }
 
-uint32_t	get_shade(uint32_t color, uint8_t shade)
+uint32_t	get_shade(uint32_t color, float shade)
 {
 	// 0xFF FF FF
 	uint32_t r = (color & 0xFF0000) >> 16;
 	uint32_t g = (color & 0x00FF00) >> 8;
 	uint32_t b = (color & 0x0000FF) >> 0;
-	r *= (float)shade / 255;
-	g *= (float)shade / 255;
-	b *= (float)shade / 255;
+	r *= shade;
+	g *= shade;
+	b *= shade;
 	return (r << 16 | g << 8 | b);
 }
 
@@ -66,26 +66,30 @@ void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2, uint32_t color)
 	int	dir_x = (x2 - x1 > 0) ? 1 : -1;
 	int	y_put = y1;
 
+	float percent = 1;
 	for (int x = x1; x * dir_x <= x2 * dir_x; x += dir_x)
 	{
 		int err = (y2 * (x - x1) - y1 * (x - x2)) - y_put * (x2 - x1);
+		if (AA)
+		{
+			if (y_x_flip)
+			{
+				my_mlx_pixel_put(img_ptr, y_put - dir_y, x - dir_x, get_shade(color, percent));
+				my_mlx_pixel_put(img_ptr, y_put + dir_y, x - dir_x, get_shade(color, 1 - percent));
+			}
+			else
+			{
+				my_mlx_pixel_put(img_ptr, x - dir_x, y_put - dir_y, get_shade(color, percent));
+				my_mlx_pixel_put(img_ptr, x - dir_x, y_put + dir_y, get_shade(color, 1 - percent));
+			}
+		}
 		if (ABS(err) >= 0.5 * ABS(x2 - x1))
 		{
-			if (AA)
-			{
-				if (y_x_flip)
-				{
-					my_mlx_pixel_put(img_ptr, y_put, x, get_shade(color, AA_SHADE));
-					my_mlx_pixel_put(img_ptr, y_put + dir_y, x - dir_x, get_shade(color, AA_SHADE));
-				}
-				else
-				{
-					my_mlx_pixel_put(img_ptr, x, y_put, get_shade(color, AA_SHADE));
-					my_mlx_pixel_put(img_ptr, x - dir_x, y_put + dir_y, get_shade(color, AA_SHADE));
-				}
-			}
+			percent = 1;
 			y_put += dir_y;
 		}
+		percent -= 0.05;
+		if (percent < 0) percent = 0;
 		if (y_x_flip)
 			my_mlx_pixel_put(img_ptr, y_put, x, color);
 		else
@@ -137,12 +141,9 @@ int main(void)
 
 	img_data.addr = mlx_get_data_addr(img_data.img, &img_data.bits_per_pixel, &img_data.line_length, &img_data.endian);
 
-	// draw_line(&img_data, 0, 0, WINDOW_WIDTH/4, WINDOW_HEIGHT, 0xFF5C00);
-	// draw_line(&img_data, WINDOW_WIDTH/2, WINDOW_HEIGHT/2, WINDOW_WIDTH/2 - 1, WINDOW_HEIGHT/2 - 100, 0xFF5C00);
-
 	// draw_line(&img_data,
 	// WINDOW_WIDTH/2, WINDOW_HEIGHT/2,
-	// WINDOW_WIDTH/2 + 5, WINDOW_HEIGHT/2 + 5,
+	// WINDOW_WIDTH, WINDOW_HEIGHT/2  + 50,
 	// 0xFF5C00);
 
 	// hueToRGB(120);
@@ -153,21 +154,21 @@ int main(void)
 	// 	printf("(%3d) -> %#.6x\n",j, hueToRGB(j));
 	// 	j++;
 	// }
-	
+
 
 	// -- Cool Stuff
 	int i = 0;
-	int cycles = 10000;
+	int cycles = 16;
 	int Amp = 300;
 	while (i < cycles)
 	{
-		draw_line(&img_data, WINDOW_WIDTH/2, WINDOW_HEIGHT/2, 
-		WINDOW_WIDTH/2 + Amp * cos((double)i/cycles * (TAU)), 
-		WINDOW_HEIGHT/2 + Amp * sin((double)i/cycles * (TAU)), 
+		draw_line(&img_data, WINDOW_WIDTH/2, WINDOW_HEIGHT/2,
+		WINDOW_WIDTH/2 + Amp * cos((double)i/(double)cycles * (TAU)),
+		WINDOW_HEIGHT/2 + Amp * sin((double)i/(double)cycles * (TAU)),
 		hueToRGB((float)i * 360 / cycles));
-		// draw_line(&img_data, WINDOW_WIDTH/2, WINDOW_HEIGHT/2, 
+		// draw_line(&img_data, WINDOW_WIDTH/2, WINDOW_HEIGHT/2,
 		// WINDOW_WIDTH/2 + Amp * cos((i * 2 * PI)/cycles),
-		// WINDOW_HEIGHT/2 + Amp * sin((i * 2 * PI)/cycles), 
+		// WINDOW_HEIGHT/2 + Amp * sin((i * 2 * PI)/cycles),
 		// 0xFF5C00);
 		i++;
 	}

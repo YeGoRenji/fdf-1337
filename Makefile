@@ -2,7 +2,7 @@ NAME = main
 
 OBJ = main.o
 
-CFLAGS = -Wall -Wextra -Werror -O3 #-g
+CFLAGS = -Wall -Wextra -Werror -O3#-g 
 
 %.o: %.c
 	$(CC) $(CFLAGS) -I/usr/include -Imlx_linux  -c $< -o $@
