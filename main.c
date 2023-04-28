@@ -11,6 +11,13 @@
 #define AA 1
 #define AA_SHADE 150
 
+typedef struct	s_point {
+	int x;
+	int y;
+	// Color maybe ?
+}				t_point;
+
+
 typedef struct	s_data {
 	void	*img;
 	char	*addr;
@@ -18,6 +25,13 @@ typedef struct	s_data {
 	int		line_length;
 	int		endian;
 }				t_data;
+
+typedef struct	s_vars {
+	void	*mlx;
+	void	*win;
+	t_data	*img;
+	t_point	line[2];
+}				t_vars;
 
 void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 {
@@ -43,6 +57,10 @@ uint32_t	get_shade(uint32_t color, float shade)
 	uint32_t r = (color & 0xFF0000) >> 16;
 	uint32_t g = (color & 0x00FF00) >> 8;
 	uint32_t b = (color & 0x0000FF) >> 0;
+	if (shade < 0)
+		shade = 0;
+	if (shade > 1)
+		shade = 1;
 	r *= shade;
 	g *= shade;
 	b *= shade;
@@ -72,14 +90,15 @@ void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2, uint32_t color)
 		int err = (y2 * (x - x1) - y1 * (x - x2)) - y_put * (x2 - x1);
 		if (AA)
 		{
+			// ! You can make this better
 			if (y_x_flip)
 			{
-				my_mlx_pixel_put(img_ptr, y_put - dir_y, x - dir_x, get_shade(color, percent));
+				my_mlx_pixel_put(img_ptr, y_put - dir_y, x - dir_x, get_shade(color, percent - 0.2));
 				my_mlx_pixel_put(img_ptr, y_put + dir_y, x - dir_x, get_shade(color, 1 - percent));
 			}
 			else
 			{
-				my_mlx_pixel_put(img_ptr, x - dir_x, y_put - dir_y, get_shade(color, percent));
+				my_mlx_pixel_put(img_ptr, x - dir_x, y_put - dir_y, get_shade(color, percent - 0.2));
 				my_mlx_pixel_put(img_ptr, x - dir_x, y_put + dir_y, get_shade(color, 1 - percent));
 			}
 		}
@@ -129,16 +148,65 @@ uint32_t	hueToRGB(uint16_t hue)
 	return (r | g | b);
 }
 
+void	clear_img(t_vars *vars)
+{
+	void*	dst;
+
+	for (int y = 0; y < WINDOW_HEIGHT; ++y)
+	{
+		for (int x = 0; x < WINDOW_WIDTH; ++x)
+		{
+			dst = vars->img->addr + (y * vars->img->line_length + x * (vars->img->bits_per_pixel / 8));
+			*(unsigned int*)dst = 0x000000;
+		}
+	}
+}
+
+int	close_win(t_vars *vars)
+{
+	puts("Closed Window !");
+	mlx_destroy_window(vars->mlx, vars->win);
+	exit(0);
+}
+
+int	handle_key(int keycode, t_vars *vars)
+{
+	// printf("Clicked %d\n", keycode);
+	if(keycode == 97)
+		vars->line[0].x -= 1;
+	else if(keycode == 119)
+		vars->line[0].y -= 1;
+	else if(keycode == 100)
+		vars->line[0].x += 1;
+	else if(keycode == 115)
+		vars->line[0].y += 1;
+	else if(keycode == 65361)
+		vars->line[1].x -= 1;
+	else if(keycode == 65362)
+		vars->line[1].y -= 1;
+	else if(keycode == 65363)
+		vars->line[1].x += 1;
+	else if(keycode == 65364)
+		vars->line[1].y += 1;
+	clear_img(vars);
+	draw_line(vars->img,
+	vars->line[0].x, vars->line[0].y,
+	vars->line[1].x, vars->line[1].y, 0xFFFFFF);
+	mlx_put_image_to_window(vars->mlx, vars->win, vars->img->img, 0, 0);
+	return (0);
+}
+
 int main(void)
 {
-	void	*mlx_ptr;
-	void	*win_ptr;
+	t_vars	vars;
 	t_data	img_data;
 
-	mlx_ptr = mlx_init();
-	win_ptr = mlx_new_window(mlx_ptr, WINDOW_WIDTH, WINDOW_HEIGHT, "FdF");
-	img_data.img = mlx_new_image(mlx_ptr, WINDOW_WIDTH, WINDOW_HEIGHT);
-
+	vars.img = &img_data;
+	vars.line[0] = (t_point){WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
+	vars.line[1] = (t_point){3*WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
+	vars.mlx = mlx_init();
+	vars.win = mlx_new_window(vars.mlx, WINDOW_WIDTH, WINDOW_HEIGHT, "FdF");
+	img_data.img = mlx_new_image(vars.mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
 	img_data.addr = mlx_get_data_addr(img_data.img, &img_data.bits_per_pixel, &img_data.line_length, &img_data.endian);
 
 	// draw_line(&img_data,
@@ -157,23 +225,24 @@ int main(void)
 
 
 	// -- Cool Stuff
-	int i = 0;
-	int cycles = 16;
-	int Amp = 300;
-	while (i < cycles)
-	{
-		draw_line(&img_data, WINDOW_WIDTH/2, WINDOW_HEIGHT/2,
-		WINDOW_WIDTH/2 + Amp * cos((double)i/(double)cycles * (TAU)),
-		WINDOW_HEIGHT/2 + Amp * sin((double)i/(double)cycles * (TAU)),
-		hueToRGB((float)i * 360 / cycles));
-		// draw_line(&img_data, WINDOW_WIDTH/2, WINDOW_HEIGHT/2,
-		// WINDOW_WIDTH/2 + Amp * cos((i * 2 * PI)/cycles),
-		// WINDOW_HEIGHT/2 + Amp * sin((i * 2 * PI)/cycles),
-		// 0xFF5C00);
-		i++;
-	}
+	// int i = 0;
+	// int cycles = 30000;
+	// int Amp = 300;
+	// while (i < cycles)
+	// {
+	// 	draw_line(&img_data, WINDOW_WIDTH/2, WINDOW_HEIGHT/2,
+	// 	WINDOW_WIDTH/2 + Amp * cos((double)i/(double)cycles * (TAU)),
+	// 	WINDOW_HEIGHT/2 + Amp * sin((double)i/(double)cycles * (TAU)),
+	// 	hueToRGB((float)i * 360 / cycles));
+	// 	i++;
+	// }
 
-	mlx_put_image_to_window(mlx_ptr, win_ptr, img_data.img, 0, 0);
-	mlx_loop(mlx_ptr);
-	free(mlx_ptr);
+	draw_line(vars.img,
+	vars.line[0].x, vars.line[0].y,
+	vars.line[1].x, vars.line[1].y, 0xFFFFFF);
+	mlx_put_image_to_window(vars.mlx, vars.win, img_data.img, 0, 0);
+	mlx_hook(vars.win, 17, 0, close_win, &vars);
+	mlx_hook(vars.win, 2, 1L<<0, handle_key, &vars);
+	mlx_loop(vars.mlx);
+	//free(mlx);
 }
