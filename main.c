@@ -17,6 +17,12 @@ typedef struct	s_point {
 	// Color maybe ?
 }				t_point;
 
+typedef struct	s_vect3d
+{
+	double x;
+	double y;
+	double z;
+}				t_vect3d;
 
 typedef struct	s_data {
 	void	*img;
@@ -31,6 +37,10 @@ typedef struct	s_vars {
 	void	*win;
 	t_data	*img;
 	t_point	line[2];
+	t_vect3d	points[4];
+	double	theta;
+	double	alpha;
+	double	gamma;
 }				t_vars;
 
 void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
@@ -169,7 +179,7 @@ int	close_win(t_vars *vars)
 	exit(0);
 }
 
-int	handle_key(int keycode, t_vars *vars)
+int	lineHandler(int keycode, t_vars *vars)
 {
 	// printf("Clicked %d\n", keycode);
 	if(keycode == 97)
@@ -196,14 +206,99 @@ int	handle_key(int keycode, t_vars *vars)
 	return (0);
 }
 
+void	draw_point(t_vars *vars, t_point p)
+{
+	my_mlx_pixel_put(vars->img, p.x, p.y, 0xFFFFFF);
+	my_mlx_pixel_put(vars->img, p.x + 1, p.y, 0xFFFFFF);
+	my_mlx_pixel_put(vars->img, p.x - 1, p.y, 0xFFFFFF);
+	my_mlx_pixel_put(vars->img, p.x, p.y + 1, 0xFFFFFF);
+	my_mlx_pixel_put(vars->img, p.x, p.y - 1, 0xFFFFFF);
+}
+
+t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
+{
+	t_point *p = malloc(sizeof(t_point));
+
+	double x = point3d.x;
+	double y = point3d.y;
+	double z = point3d.z;
+
+
+	// Rotation around X
+	// x = x
+	double old = y;
+	y = y * cos(vars->gamma) - z * sin(vars->gamma);
+	z = old * sin(vars->gamma) + z * cos(vars->gamma);
+
+	// Rotation around Y
+	old = x;
+	x = x * cos(vars->alpha) + z * sin(vars->alpha);
+	// y = y
+	z =  - old * sin(vars->alpha) + z * cos(vars->alpha);
+
+	// Rotation around Z
+	old = x;
+	x = x * cos(vars->theta) - y * sin(vars->theta);
+	y = old * sin(vars->theta) + y * cos(vars->theta);
+	z = z;
+
+
+	p->x = (WINDOW_WIDTH / 2) + 200 * x;
+	p->y = (WINDOW_HEIGHT / 2) + 200 * y;
+	return (p);
+}
+
+int	rotation_handler(int keycode, t_vars *vars)
+{
+	// printf("Clicked %d\n", keycode);
+	if (keycode == 97)
+		vars->theta += TAU/30;
+	else if (keycode == 100)
+		vars->alpha += TAU/30;
+	else if (keycode == 119)
+		vars->gamma += TAU/30;
+	else if (keycode == 114)
+	{
+		vars->theta = 0;
+		vars->alpha = 0;
+		vars->gamma = 0;
+	}
+	else
+		return (0);
+	clear_img(vars);
+	for (int i = 0; i < 4; i++)
+	{
+		t_point *a = f3d_to_2d(vars, vars->points[i]);
+		t_point *b = f3d_to_2d(vars, vars->points[(i + 1) % 4]);
+
+		draw_line(vars->img,
+		a->x, a->y,
+		b->x, b->y,
+		0xFF5C00
+		);
+		// draw_point(vars, *f3d_to_2d(vars, vars->points[i]));
+	}
+	mlx_put_image_to_window(vars->mlx, vars->win, vars->img->img, 0, 0);
+	return (0);
+}
+
+
 int main(void)
 {
 	t_vars	vars;
 	t_data	img_data;
 
+	vars.points[0] = (t_vect3d){-1, 1, 0};
+	vars.points[1] = (t_vect3d){ 1, 1, 0};
+	vars.points[2] = (t_vect3d){ 1,-1, 0};
+	vars.points[3] = (t_vect3d){-1,-1, 0};
+
+	vars.theta = 0;
+	vars.alpha = 0;
+	vars.gamma = 0;
 	vars.img = &img_data;
-	vars.line[0] = (t_point){WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
-	vars.line[1] = (t_point){3*WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
+	// vars.line[0] = (t_point){WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
+	// vars.line[1] = (t_point){3*WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
 	vars.mlx = mlx_init();
 	vars.win = mlx_new_window(vars.mlx, WINDOW_WIDTH, WINDOW_HEIGHT, "FdF");
 	img_data.img = mlx_new_image(vars.mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -237,12 +332,25 @@ int main(void)
 	// 	i++;
 	// }
 
-	draw_line(vars.img,
-	vars.line[0].x, vars.line[0].y,
-	vars.line[1].x, vars.line[1].y, 0xFFFFFF);
+	// draw_line(vars.img,
+	// vars.line[0].x, vars.line[0].y,
+	// vars.line[1].x, vars.line[1].y, 0xFFFFFF);
+	for (int i = 0; i < 4; i++)
+	{
+		t_point *a = f3d_to_2d(&vars, vars.points[i]);
+		t_point *b = f3d_to_2d(&vars, vars.points[(i + 1) % 4]);
+
+		draw_line(vars.img,
+		a->x, a->y,
+		b->x, b->y,
+		0xFF5C00
+		);
+		// draw_point(vars, *f3d_to_2d(vars, vars->points[i]));
+	}
+
 	mlx_put_image_to_window(vars.mlx, vars.win, img_data.img, 0, 0);
 	mlx_hook(vars.win, 17, 0, close_win, &vars);
-	mlx_hook(vars.win, 2, 1L<<0, handle_key, &vars);
+	mlx_hook(vars.win, 2, 1L<<0, rotation_handler, &vars);
 	mlx_loop(vars.mlx);
 	//free(mlx);
 }
