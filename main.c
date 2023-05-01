@@ -37,7 +37,7 @@ typedef struct	s_vars {
 	void	*win;
 	t_data	*img;
 	t_point	line[2];
-	t_vect3d	points[4];
+	t_vect3d	points[8];
 	double	theta;
 	double	alpha;
 	double	gamma;
@@ -251,12 +251,18 @@ t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 int	rotation_handler(int keycode, t_vars *vars)
 {
 	// printf("Clicked %d\n", keycode);
-	if (keycode == 97)
-		vars->theta += TAU/30;
-	else if (keycode == 100)
-		vars->alpha += TAU/30;
+	if (keycode == 113)
+		vars->theta += TAU/32;
+	else if (keycode == 97 )
+		vars->theta -= TAU/32;
 	else if (keycode == 119)
-		vars->gamma += TAU/30;
+		vars->alpha += TAU/32;
+	else if (keycode == 115)
+		vars->alpha -= TAU/32;
+	else if (keycode == 101)
+		vars->gamma += TAU/32;
+	else if (keycode == 100)
+		vars->gamma -= TAU/32;
 	else if (keycode == 114)
 	{
 		vars->theta = 0;
@@ -270,14 +276,17 @@ int	rotation_handler(int keycode, t_vars *vars)
 	{
 		t_point *a = f3d_to_2d(vars, vars->points[i]);
 		t_point *b = f3d_to_2d(vars, vars->points[(i + 1) % 4]);
+		draw_line(vars->img, a->x, a->y, b->x, b->y, 0xFF5C00);
 
-		draw_line(vars->img,
-		a->x, a->y,
-		b->x, b->y,
-		0xFF5C00
-		);
-		// draw_point(vars, *f3d_to_2d(vars, vars->points[i]));
+		a = f3d_to_2d(vars, vars->points[4 + i]);
+		b = f3d_to_2d(vars, vars->points[4 + (i + 1) % 4]);
+		draw_line(vars->img, a->x, a->y, b->x, b->y, 0xFF5C00);
+
+		a = f3d_to_2d(vars, vars->points[i]);
+		b = f3d_to_2d(vars, vars->points[4 + i]);
+		draw_line(vars->img, a->x, a->y, b->x, b->y, 0xFF5C00);
 	}
+
 	mlx_put_image_to_window(vars->mlx, vars->win, vars->img->img, 0, 0);
 	return (0);
 }
@@ -288,10 +297,15 @@ int main(void)
 	t_vars	vars;
 	t_data	img_data;
 
-	vars.points[0] = (t_vect3d){-1, 1, 0};
-	vars.points[1] = (t_vect3d){ 1, 1, 0};
-	vars.points[2] = (t_vect3d){ 1,-1, 0};
-	vars.points[3] = (t_vect3d){-1,-1, 0};
+	vars.points[0] = (t_vect3d){-1, 1,-1};
+	vars.points[1] = (t_vect3d){ 1, 1,-1};
+	vars.points[2] = (t_vect3d){ 1,-1,-1};
+	vars.points[3] = (t_vect3d){-1,-1,-1};
+
+	vars.points[4] = (t_vect3d){-1, 1, 1};
+	vars.points[5] = (t_vect3d){ 1, 1, 1};
+	vars.points[6] = (t_vect3d){ 1,-1, 1};
+	vars.points[7] = (t_vect3d){-1,-1, 1};
 
 	vars.theta = 0;
 	vars.alpha = 0;
@@ -335,10 +349,10 @@ int main(void)
 	// draw_line(vars.img,
 	// vars.line[0].x, vars.line[0].y,
 	// vars.line[1].x, vars.line[1].y, 0xFFFFFF);
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 8; i++)
 	{
 		t_point *a = f3d_to_2d(&vars, vars.points[i]);
-		t_point *b = f3d_to_2d(&vars, vars.points[(i + 1) % 4]);
+		t_point *b = f3d_to_2d(&vars, vars.points[(i + 1) % 8]);
 
 		draw_line(vars.img,
 		a->x, a->y,
