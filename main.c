@@ -41,6 +41,9 @@ typedef struct	s_vars {
 	double	theta;
 	double	alpha;
 	double	gamma;
+	// Weak prespective
+	double	distance;
+	double	fov;
 }				t_vars;
 
 void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
@@ -243,14 +246,16 @@ t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 	z = z;
 
 
-	p->x = (WINDOW_WIDTH / 2) + 200 * x;
-	p->y = (WINDOW_HEIGHT / 2) + 200 * y;
+	// ! need to understand more why it works ! :)
+	// TODO : Add more vars distance not used
+	p->x = (WINDOW_WIDTH / 2) + 200 * x * vars->fov / ((2 + vars->fov) - z);
+	p->y = (WINDOW_HEIGHT / 2) + 200 * y * vars->fov / ((2 + vars->fov)- z);
 	return (p);
 }
 
 int	rotation_handler(int keycode, t_vars *vars)
 {
-	// printf("Clicked %d\n", keycode);
+	printf("Clicked %d\n", keycode);
 	if (keycode == 113)
 		vars->theta += TAU/32;
 	else if (keycode == 97 )
@@ -263,6 +268,14 @@ int	rotation_handler(int keycode, t_vars *vars)
 		vars->gamma += TAU/32;
 	else if (keycode == 100)
 		vars->gamma -= TAU/32;
+	else if(keycode == 116)
+		vars->distance += 0.5;
+	else if(keycode == 103)
+		vars->distance -= 0.5;
+	else if(keycode == 121)
+		vars->fov += 0.5;
+	else if(keycode == 104)
+		vars->fov -= 0.5;
 	else if (keycode == 114)
 	{
 		vars->theta = 0;
@@ -311,6 +324,8 @@ int main(void)
 	vars.alpha = 0;
 	vars.gamma = 0;
 	vars.img = &img_data;
+	vars.distance = 2;
+	vars.fov = 2;
 	// vars.line[0] = (t_point){WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
 	// vars.line[1] = (t_point){3*WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
 	vars.mlx = mlx_init();
@@ -349,18 +364,21 @@ int main(void)
 	// draw_line(vars.img,
 	// vars.line[0].x, vars.line[0].y,
 	// vars.line[1].x, vars.line[1].y, 0xFFFFFF);
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < 4; i++)
 	{
 		t_point *a = f3d_to_2d(&vars, vars.points[i]);
-		t_point *b = f3d_to_2d(&vars, vars.points[(i + 1) % 8]);
+		t_point *b = f3d_to_2d(&vars, vars.points[(i + 1) % 4]);
+		draw_line(vars.img, a->x, a->y, b->x, b->y, 0xFF5C00);
 
-		draw_line(vars.img,
-		a->x, a->y,
-		b->x, b->y,
-		0xFF5C00
-		);
-		// draw_point(vars, *f3d_to_2d(vars, vars->points[i]));
+		a = f3d_to_2d(&vars, vars.points[4 + i]);
+		b = f3d_to_2d(&vars, vars.points[4 + (i + 1) % 4]);
+		draw_line(vars.img, a->x, a->y, b->x, b->y, 0xFF5C00);
+
+		a = f3d_to_2d(&vars, vars.points[i]);
+		b = f3d_to_2d(&vars, vars.points[4 + i]);
+		draw_line(vars.img, a->x, a->y, b->x, b->y, 0xFF5C00);
 	}
+
 
 	mlx_put_image_to_window(vars.mlx, vars.win, img_data.img, 0, 0);
 	mlx_hook(vars.win, 17, 0, close_win, &vars);
