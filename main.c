@@ -38,6 +38,7 @@ typedef struct	s_vars {
 	t_data	*img;
 	t_point	line[2];
 	t_vect3d	points[8];
+	// rotation angles
 	double	theta;
 	double	alpha;
 	double	gamma;
@@ -361,9 +362,6 @@ int main(void)
 	// 	i++;
 	// }
 
-	// draw_line(vars.img,
-	// vars.line[0].x, vars.line[0].y,
-	// vars.line[1].x, vars.line[1].y, 0xFFFFFF);
 	for (int i = 0; i < 4; i++)
 	{
 		t_point *a = f3d_to_2d(&vars, vars.points[i]);
