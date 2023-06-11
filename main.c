@@ -1,20 +1,50 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/06/11 17:24:11 by ylyoussf          #+#    #+#             */
+/*   Updated: 2023/06/11 20:52:04 by ylyoussf         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdlib.h>
 #include <mlx.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include <math.h>
+#include "gnl/get_next_line.h"
+#include "include/parser.h"
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
 #define TAU 6.2831853071795864
-#define AA 1
+#define AA 0
 #define AA_SHADE 150
+#define KEY_Q 12
+#define KEY_A 0
+#define KEY_W 13
+#define KEY_S 1
+#define KEY_E 14
+#define KEY_D 2
+#define KEY_R 15
+#define KEY_F 3
+#define KEY_T 17
+#define KEY_G 5
+#define KEY_Y 16
+#define KEY_H 4
+#define KEY_Z 6
+#define KEY_X 7
 
 typedef struct	s_point {
-	int x;
-	int y;
-	// Color maybe ?
+	int			x;
+	int			y;
+	uint32_t	color;
 }				t_point;
 
 typedef struct	s_vect3d
@@ -33,18 +63,21 @@ typedef struct	s_data {
 }				t_data;
 
 typedef struct	s_vars {
-	void	*mlx;
-	void	*win;
-	t_data	*img;
-	t_point	line[2];
+	void		*mlx;
+	void		*win;
+	t_data		*img;
+	t_point		line[2];
 	t_vect3d	points[8];
+	// z distance
+	double	distance;
 	// rotation angles
 	double	theta;
 	double	alpha;
 	double	gamma;
 	// Weak prespective
-	double	distance;
 	double	fov;
+	// Scale
+	int scale;
 }				t_vars;
 
 void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
@@ -180,32 +213,33 @@ int	close_win(t_vars *vars)
 {
 	puts("Closed Window !");
 	mlx_destroy_window(vars->mlx, vars->win);
+	// ! free stuff ?
 	exit(0);
 }
 
 int	lineHandler(int keycode, t_vars *vars)
 {
 	// printf("Clicked %d\n", keycode);
-	if(keycode == 97)
+	if (keycode == KEY_Q)
 		vars->line[0].x -= 1;
-	else if(keycode == 119)
+	else if (keycode == KEY_A)
 		vars->line[0].y -= 1;
-	else if(keycode == 100)
+	else if (keycode == KEY_W)
 		vars->line[0].x += 1;
-	else if(keycode == 115)
+	else if (keycode == KEY_S)
 		vars->line[0].y += 1;
-	else if(keycode == 65361)
+	else if (keycode == KEY_E)
 		vars->line[1].x -= 1;
-	else if(keycode == 65362)
+	else if (keycode == KEY_D)
 		vars->line[1].y -= 1;
-	else if(keycode == 65363)
+	else if (keycode == KEY_R)
 		vars->line[1].x += 1;
-	else if(keycode == 65364)
+	else if (keycode == KEY_F)
 		vars->line[1].y += 1;
 	clear_img(vars);
 	draw_line(vars->img,
-	vars->line[0].x, vars->line[0].y,
-	vars->line[1].x, vars->line[1].y, 0xFFFFFF);
+		vars->line[0].x, vars->line[0].y,
+		vars->line[1].x, vars->line[1].y, 0xFFFFFF);
 	mlx_put_image_to_window(vars->mlx, vars->win, vars->img->img, 0, 0);
 	return (0);
 }
@@ -227,7 +261,6 @@ t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 	double y = point3d.y;
 	double z = point3d.z;
 
-
 	// Rotation around X
 	// x = x
 	double old = y;
@@ -244,40 +277,44 @@ t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 	old = x;
 	x = x * cos(vars->theta) - y * sin(vars->theta);
 	y = old * sin(vars->theta) + y * cos(vars->theta);
-	z = z;
+	// z = z;
 
 
 	// ! need to understand more why it works ! :)
 	// TODO : Add more vars distance not used
-	p->x = (WINDOW_WIDTH / 2) + 200 * x * vars->fov / ((2 + vars->fov) - z);
-	p->y = (WINDOW_HEIGHT / 2) + 200 * y * vars->fov / ((2 + vars->fov)- z);
+	p->x = (WINDOW_WIDTH / 2) + vars->scale * x * vars->fov / ((2 + vars->fov) - (z - vars->distance));
+	p->y = (WINDOW_HEIGHT / 2) + vars->scale * y * vars->fov / ((2 + vars->fov) - (z - vars->distance));
 	return (p);
 }
 
 int	rotation_handler(int keycode, t_vars *vars)
 {
 	printf("Clicked %d\n", keycode);
-	if (keycode == 113)
-		vars->theta += TAU/32;
-	else if (keycode == 97 )
-		vars->theta -= TAU/32;
-	else if (keycode == 119)
-		vars->alpha += TAU/32;
-	else if (keycode == 115)
-		vars->alpha -= TAU/32;
-	else if (keycode == 101)
-		vars->gamma += TAU/32;
-	else if (keycode == 100)
-		vars->gamma -= TAU/32;
-	else if(keycode == 116)
+	if (keycode == KEY_Q)
+		vars->theta += TAU / 32;
+	else if (keycode == KEY_A)
+		vars->theta -= TAU / 32;
+	else if (keycode == KEY_W)
+		vars->alpha += TAU / 32;
+	else if (keycode == KEY_S)
+		vars->alpha -= TAU / 32;
+	else if (keycode == KEY_E)
+		vars->gamma += TAU / 32;
+	else if (keycode == KEY_D)
+		vars->gamma -= TAU / 32;
+	else if (keycode == KEY_Y)
 		vars->distance += 0.5;
-	else if(keycode == 103)
+	else if (keycode == KEY_H)
 		vars->distance -= 0.5;
-	else if(keycode == 121)
+	else if (keycode == KEY_T)
 		vars->fov += 0.5;
-	else if(keycode == 104)
+	else if (keycode == KEY_G)
 		vars->fov -= 0.5;
-	else if (keycode == 114)
+	else if (keycode == KEY_Z)
+		vars->scale += 1;
+	else if (keycode == KEY_X)
+		vars->scale -= 1;
+	else if (keycode == KEY_R)
 	{
 		vars->theta = 0;
 		vars->alpha = 0;
@@ -305,11 +342,65 @@ int	rotation_handler(int keycode, t_vars *vars)
 	return (0);
 }
 
+void printSPLIT(char ** s)
+{
+    int i = 0;
+    int j = 0;
 
-int main(void)
+	if (!s)
+		puts("(null)");
+    printf("<| ");
+    while (s[i])
+    {
+        j = 0;
+        while (s[i][j])
+        {
+            printf("%c", s[i][j]);
+            j++;
+        }
+        printf(" | ");
+        i++;
+    }
+    printf(">\n");
+}
+
+void parse_map(char* file_path, t_vars *vars)
+{
+	int	fd;
+	char *str = "SALAM";
+
+	(void)vars;
+	fd = open(file_path, O_RDONLY);
+	if (fd == -1)
+	{
+		perror("fdf");
+		exit(-1);
+	}
+
+	while (str)
+	{
+		str = get_next_line(fd);
+		puts(str);
+		printSPLIT(ft_split(str, ' '));
+	}
+
+	printf("Got %d , %s", fd, file_path);
+}
+
+int main(int argc, char** argv)
 {
 	t_vars	vars;
 	t_data	img_data;
+
+	if (argc > 2)
+	{
+		write(2, "use: ./fdf [map_path]", 21);
+		exit(-1);
+	}
+	if (argc == 2)
+		parse_map(argv[1], &vars);
+
+	exit(0);
 
 	vars.points[0] = (t_vect3d){-1, 1,-1};
 	vars.points[1] = (t_vect3d){ 1, 1,-1};
@@ -327,6 +418,7 @@ int main(void)
 	vars.img = &img_data;
 	vars.distance = 2;
 	vars.fov = 2;
+	vars.scale = 200;
 	// vars.line[0] = (t_point){WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
 	// vars.line[1] = (t_point){3*WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
 	vars.mlx = mlx_init();
@@ -380,7 +472,7 @@ int main(void)
 
 	mlx_put_image_to_window(vars.mlx, vars.win, img_data.img, 0, 0);
 	mlx_hook(vars.win, 17, 0, close_win, &vars);
-	mlx_hook(vars.win, 2, 1L<<0, rotation_handler, &vars);
+	mlx_hook(vars.win, 2, 0, rotation_handler, &vars);
 	mlx_loop(vars.mlx);
 	//free(mlx);
 }

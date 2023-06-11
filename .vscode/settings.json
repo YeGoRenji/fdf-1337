@@ -1,6 +1,9 @@
 {
 	"files.associations": {
 		"mlx.h": "c",
-		"math.h": "c"
+		"math.h": "c",
+		"algorithm": "c",
+		"functional": "c",
+		"parser.h": "c"
 	}
 }
