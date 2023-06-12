@@ -4,6 +4,7 @@
 		"math.h": "c",
 		"algorithm": "c",
 		"functional": "c",
-		"parser.h": "c"
+		"parser.h": "c",
+		"stdlib.h": "c"
 	}
 }

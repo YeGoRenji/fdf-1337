@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/11 17:24:11 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/11 20:52:04 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/12 16:16:10 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,8 @@ typedef struct	s_vars {
 	t_data		*img;
 	t_point		line[2];
 	t_vect3d	points[8];
+	int rows;
+	int cols;
 	// z distance
 	double	distance;
 	// rotation angles
@@ -345,42 +347,53 @@ int	rotation_handler(int keycode, t_vars *vars)
 void printSPLIT(char ** s)
 {
     int i = 0;
-    int j = 0;
 
 	if (!s)
+	{
 		puts("(null)");
+		return;
+	}
     printf("<| ");
     while (s[i])
     {
-        j = 0;
-        while (s[i][j])
-        {
-            printf("%c", s[i][j]);
-            j++;
-        }
-        printf(" | ");
+		printf("%s", s[i]);
+        printf(s[i+1]  ? " | " : " |");
         i++;
     }
     printf(">\n");
 }
 
-void parse_map(char* file_path, t_vars *vars)
+int	split_len(char **split)
 {
-	int	fd;
-	char *str = "SALAM";
+	int	len;
 
-	(void)vars;
+	len = 0;
+	while (*split++)
+		len++;
+	return (len);
+}
+
+void parse_map(char *file_path, t_vars *vars)
+{
+	int		fd;
+	char	*str = "SALAM";
+	// t_list	*map;
+	// t_list	*next;
+
+	vars->cols = -1;
+	vars->rows = -1;
+	// map = NULL;
 	fd = open(file_path, O_RDONLY);
 	if (fd == -1)
 	{
 		perror("fdf");
 		exit(-1);
 	}
-
 	while (str)
 	{
 		str = get_next_line(fd);
-		puts(str);
+		if (str)
+			str[ft_strlen(str) - 1] = '\0';
 		printSPLIT(ft_split(str, ' '));
 	}
 
@@ -392,6 +405,7 @@ int main(int argc, char** argv)
 	t_vars	vars;
 	t_data	img_data;
 
+
 	if (argc > 2)
 	{
 		write(2, "use: ./fdf [map_path]", 21);
@@ -401,6 +415,7 @@ int main(int argc, char** argv)
 		parse_map(argv[1], &vars);
 
 	exit(0);
+
 
 	vars.points[0] = (t_vect3d){-1, 1,-1};
 	vars.points[1] = (t_vect3d){ 1, 1,-1};

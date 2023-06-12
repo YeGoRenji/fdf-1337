@@ -3,5 +3,22 @@
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
-    "configurations": []
+    "configurations": [
+        {
+            "name": "C Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/fdf",
+            "stopAtEntry": false,
+            "osx": {
+                "targetArchitecture": "arm64",
+                "MIMode": "lldb"
+            },
+            "args": [
+                "test_maps/42.fdf"
+            ],
+            // "environment": [{ "name": "config", "value": "Debug" }],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
 }
