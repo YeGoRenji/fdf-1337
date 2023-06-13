@@ -6,13 +6,13 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/16 19:51:35 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/11 20:14:42 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/13 02:36:05 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/parser.h"
+#include "../../include/parser.h"
 
-static int	count_words(char const *s, char c)
+int	count_words(char const *s, char c)
 {
 	int	in_word;
 	int	i;

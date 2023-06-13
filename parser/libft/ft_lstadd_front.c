@@ -1,23 +1,21 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strlen.c                                        :+:      :+:    :+:   */
+/*   ft_lstadd_front.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/09 00:48:46 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/01/23 17:00:36 by ylyoussf         ###   ########.fr       */
+/*   Created: 2022/10/16 22:47:38 by ylyoussf          #+#    #+#             */
+/*   Updated: 2023/06/13 02:33:51 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <unistd.h>
+#include "../../include/parser.h"
 
-size_t	ft_strlen(const char *s)
+void	ft_lstadd_front(t_list **lst, t_list *new)
 {
-	int	len;
-
-	len = 0;
-	while (*s++)
-		len++;
-	return (len);
+	if (!lst || !new)
+		return ;
+	new->next = *lst;
+	*lst = new;
 }

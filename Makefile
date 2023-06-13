@@ -1,6 +1,6 @@
 NAME = fdf
 
-CFLAGS = -Wall -Wextra -Werror -g #-O3 -Ofast
+CFLAGS = -Wall -Wextra -Werror -O3 -Ofast #-g
 
 OBJSFOLDER = objs/
 
@@ -28,19 +28,29 @@ OBJS_FILES = $(SRCS_GNL:.c=.o) \
 
 OBJS = $(foreach obj, $(OBJS_FILES), $(OBJSFOLDER)$(obj))
 
+all: $(NAME)
+
+# $(NAME): $(OBJS)
+# 	$(CC) $(OBJS) $(CFLAGS) -lmlx -framework OpenGL -framework AppKit -o $(NAME)
+
+# Linux
 $(NAME): $(OBJS)
-	$(CC) $(OBJS) $(CFLAGS) -lmlx -framework OpenGL -framework AppKit -o $(NAME)
-#$(CC) $(OBJS) $(CFLAGS) -Lmlx_linux -lmlx_Linux -L/usr/lib -Imlx_linux -lXext -lX11 -lm -lz -o $(NAME)
+	$(CC) $(OBJS) $(CFLAGS) -Lmlx_linux -lmlx_Linux -L/usr/lib -Imlx_linux -lXext -lX11 -lm -lz -o $(NAME)
+
+# Linux
+# $(OBJSFOLDER)%.o: %.c
+# 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJSFOLDER)%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-#$(CC) $(CFLAGS) -I/usr/include -Imlx_linux  -c $< -o $@
+	$(CC) $(CFLAGS) -I/usr/include -Imlx_linux  -c $< -o $@
 
 $(OBJSFOLDER)%.o: gnl/%.c gnl/get_next_line.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJSFOLDER)%.o: parser/%.c include/parser.h
+$(OBJSFOLDER)%.o: parser/libft/%.c include/parser.h
 	$(CC) $(CFLAGS) -c $< -o $@
+
+re: fclean all
 
 fclean: clean
 	rm -rf $(NAME)
@@ -48,3 +58,4 @@ fclean: clean
 clean:
 	rm -rf $(OBJS)
 
+.PHONY: all clean fclean re

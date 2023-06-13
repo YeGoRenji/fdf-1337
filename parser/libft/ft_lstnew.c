@@ -1,36 +1,25 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_lstmap_bonus.c                                  :+:      :+:    :+:   */
+/*   ft_lstnew.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/18 00:19:23 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/12 14:34:29 by ylyoussf         ###   ########.fr       */
+/*   Created: 2022/10/16 22:39:36 by ylyoussf          #+#    #+#             */
+/*   Updated: 2023/06/13 02:34:36 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/parser.h"
+#include "../../include/parser.h"
 
-t_list	*ft_lstmap(t_list *lst, void *(*f)(void *), void (*del)(void *))
+t_list	*ft_lstnew(void *content)
 {
-	t_list	*new_lst;
 	t_list	*node;
 
-	if (!lst || !f || !del)
+	node = malloc(sizeof(t_list));
+	if (!node)
 		return (NULL);
-	new_lst = NULL;
-	while (lst)
-	{
-		node = ft_lstnew(NULL);
-		if (!node)
-		{
-			ft_lstclear(&new_lst, del);
-			break ;
-		}
-		node->content = f(lst->content);
-		ft_lstadd_back(&new_lst, node);
-		lst = lst->next;
-	}
-	return (new_lst);
+	node->content = content;
+	node->next = NULL;
+	return (node);
 }

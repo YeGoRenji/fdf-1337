@@ -5,6 +5,7 @@
 		"algorithm": "c",
 		"functional": "c",
 		"parser.h": "c",
-		"stdlib.h": "c"
+		"stdlib.h": "c",
+		"keys.h": "c"
 	}
 }

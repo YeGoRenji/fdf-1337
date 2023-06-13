@@ -1,25 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_lstadd_back_bonus.c                             :+:      :+:    :+:   */
+/*   ft_memcmp.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/17 23:46:31 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/12 14:32:12 by ylyoussf         ###   ########.fr       */
+/*   Created: 2022/10/09 21:35:29 by ylyoussf          #+#    #+#             */
+/*   Updated: 2023/06/13 02:34:49 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/parser.h"
+#include "../../include/parser.h"
 
-void	ft_lstadd_back(t_list **lst, t_list *new)
+int	ft_memcmp(const void *s1, const void *s2, size_t n)
 {
-	if (!lst || !new)
-		return ;
-	if (!(*lst))
+	unsigned char	*p1;
+	unsigned char	*p2;
+
+	p1 = (unsigned char *)s1;
+	p2 = (unsigned char *)s2;
+	while (n--)
 	{
-		*lst = new;
-		return ;
+		if (n == 0 || *p1 != *p2)
+			return (*p1 - *p2);
+		p1++;
+		p2++;
 	}
-	ft_lstlast(*lst)->next = new;
+	return (0);
 }

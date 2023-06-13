@@ -1,20 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_lstlast_bonus.c                                 :+:      :+:    :+:   */
+/*   ft_lstclear.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/17 22:46:02 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/12 14:34:24 by ylyoussf         ###   ########.fr       */
+/*   Created: 2022/10/18 00:00:46 by ylyoussf          #+#    #+#             */
+/*   Updated: 2023/06/13 02:33:57 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/parser.h"
+#include "../../include/parser.h"
 
-t_list	*ft_lstlast(t_list *lst)
+void	ft_lstclear(t_list **lst, void (*del)(void *))
 {
-	while (lst && lst->next)
-		lst = lst->next;
-	return (lst);
+	t_list	*to_del;
+
+	if (!lst || !del || !(*lst))
+		return ;
+	while (*lst)
+	{
+		to_del = *lst;
+		*lst = (*lst)->next;
+		ft_lstdelone(to_del, del);
+	}
 }

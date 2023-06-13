@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/11 17:24:11 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/12 16:16:10 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/13 03:58:17 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 #include <math.h>
 #include "gnl/get_next_line.h"
 #include "include/parser.h"
+#include "include/keys.h"
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
@@ -26,20 +27,6 @@
 #define TAU 6.2831853071795864
 #define AA 0
 #define AA_SHADE 150
-#define KEY_Q 12
-#define KEY_A 0
-#define KEY_W 13
-#define KEY_S 1
-#define KEY_E 14
-#define KEY_D 2
-#define KEY_R 15
-#define KEY_F 3
-#define KEY_T 17
-#define KEY_G 5
-#define KEY_Y 16
-#define KEY_H 4
-#define KEY_Z 6
-#define KEY_X 7
 
 typedef struct	s_point {
 	int			x;
@@ -68,6 +55,7 @@ typedef struct	s_vars {
 	t_data		*img;
 	t_point		line[2];
 	t_vect3d	points[8];
+	t_vect3d	**pts;
 	int rows;
 	int cols;
 	// z distance
@@ -325,20 +313,28 @@ int	rotation_handler(int keycode, t_vars *vars)
 	else
 		return (0);
 	clear_img(vars);
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < vars->rows; i++)
 	{
-		t_point *a = f3d_to_2d(vars, vars->points[i]);
-		t_point *b = f3d_to_2d(vars, vars->points[(i + 1) % 4]);
-		draw_line(vars->img, a->x, a->y, b->x, b->y, 0xFF5C00);
-
-		a = f3d_to_2d(vars, vars->points[4 + i]);
-		b = f3d_to_2d(vars, vars->points[4 + (i + 1) % 4]);
-		draw_line(vars->img, a->x, a->y, b->x, b->y, 0xFF5C00);
-
-		a = f3d_to_2d(vars, vars->points[i]);
-		b = f3d_to_2d(vars, vars->points[4 + i]);
-		draw_line(vars->img, a->x, a->y, b->x, b->y, 0xFF5C00);
+		for (int j = 0; j < vars->cols; j++)
+		{
+			t_point *p = f3d_to_2d(vars, vars->pts[i][j]);
+			draw_point(vars , *p);
+		}
 	}
+	// for (int i = 0; i < 4; i++)
+	// {
+	// 	t_point *a = f3d_to_2d(vars, vars->points[i]);
+	// 	t_point *b = f3d_to_2d(vars, vars->points[(i + 1) % 4]);
+	// 	draw_line(vars->img, a->x, a->y, b->x, b->y, 0xFF5C00);
+
+	// 	a = f3d_to_2d(vars, vars->points[4 + i]);
+	// 	b = f3d_to_2d(vars, vars->points[4 + (i + 1) % 4]);
+	// 	draw_line(vars->img, a->x, a->y, b->x, b->y, 0xFF5C00);
+
+	// 	a = f3d_to_2d(vars, vars->points[i]);
+	// 	b = f3d_to_2d(vars, vars->points[4 + i]);
+	// 	draw_line(vars->img, a->x, a->y, b->x, b->y, 0xFF5C00);
+	// }
 
 	mlx_put_image_to_window(vars->mlx, vars->win, vars->img->img, 0, 0);
 	return (0);
@@ -377,11 +373,12 @@ void parse_map(char *file_path, t_vars *vars)
 {
 	int		fd;
 	char	*str = "SALAM";
-	// t_list	*map;
+	char	**split;
+	t_list	*map;
 	// t_list	*next;
 
 	vars->cols = -1;
-	vars->rows = -1;
+	vars->rows = 0;
 	// map = NULL;
 	fd = open(file_path, O_RDONLY);
 	if (fd == -1)
@@ -389,15 +386,41 @@ void parse_map(char *file_path, t_vars *vars)
 		perror("fdf");
 		exit(-1);
 	}
+
 	while (str)
 	{
 		str = get_next_line(fd);
 		if (str)
+		{
+			vars->rows++;
 			str[ft_strlen(str) - 1] = '\0';
-		printSPLIT(ft_split(str, ' '));
+		}
+		if (vars->cols == -1)
+			vars->cols = count_words(str, ' ');
+		split = ft_split(str, ' ');
+		if (split)
+			ft_lstadd_back(&map, ft_lstnew(split));
+		// printSPLIT(ft_split(str, ' '));
+	}
+	vars->pts = malloc(vars->rows * sizeof(t_vect3d*));
+
+	int i = 0;
+	int j;
+	while (map)
+	{
+		j = 0;
+		vars->pts[i] = malloc(vars->cols * sizeof(t_vect3d));
+		split = (char **)map->content;
+		while (j < vars->cols)
+		{
+			vars->pts[i][j] = (t_vect3d){i - vars->rows / 2, j - vars->cols / 2, ft_atoi(split[j])};
+			j++;
+		}
+		i++;
+		map = map->next;
 	}
 
-	printf("Got %d , %s", fd, file_path);
+	printf("Got (%d, %d)\n", vars->rows, vars->cols);
 }
 
 int main(int argc, char** argv)
@@ -408,24 +431,14 @@ int main(int argc, char** argv)
 
 	if (argc > 2)
 	{
-		write(2, "use: ./fdf [map_path]", 21);
-		exit(-1);
+		exit(write(2, "use: ./fdf [map_path]", 21));
 	}
 	if (argc == 2)
 		parse_map(argv[1], &vars);
 
-	exit(0);
+	// exit(0);
 
 
-	vars.points[0] = (t_vect3d){-1, 1,-1};
-	vars.points[1] = (t_vect3d){ 1, 1,-1};
-	vars.points[2] = (t_vect3d){ 1,-1,-1};
-	vars.points[3] = (t_vect3d){-1,-1,-1};
-
-	vars.points[4] = (t_vect3d){-1, 1, 1};
-	vars.points[5] = (t_vect3d){ 1, 1, 1};
-	vars.points[6] = (t_vect3d){ 1,-1, 1};
-	vars.points[7] = (t_vect3d){-1,-1, 1};
 
 	vars.theta = 0;
 	vars.alpha = 0;
@@ -456,7 +469,7 @@ int main(int argc, char** argv)
 	// }
 
 
-	// -- Cool Stuff
+	// -- Rainbow Circle
 	// int i = 0;
 	// int cycles = 30000;
 	// int Amp = 300;
@@ -469,25 +482,49 @@ int main(int argc, char** argv)
 	// 	i++;
 	// }
 
-	for (int i = 0; i < 4; i++)
+	for (int i = 0; i < vars.rows; i++)
 	{
-		t_point *a = f3d_to_2d(&vars, vars.points[i]);
-		t_point *b = f3d_to_2d(&vars, vars.points[(i + 1) % 4]);
-		draw_line(vars.img, a->x, a->y, b->x, b->y, 0xFF5C00);
-
-		a = f3d_to_2d(&vars, vars.points[4 + i]);
-		b = f3d_to_2d(&vars, vars.points[4 + (i + 1) % 4]);
-		draw_line(vars.img, a->x, a->y, b->x, b->y, 0xFF5C00);
-
-		a = f3d_to_2d(&vars, vars.points[i]);
-		b = f3d_to_2d(&vars, vars.points[4 + i]);
-		draw_line(vars.img, a->x, a->y, b->x, b->y, 0xFF5C00);
+		for (int j = 0; j < vars.cols; j++)
+		{
+			t_point *p = f3d_to_2d(&vars, vars.pts[i][j]);
+			draw_point(&vars , *p);
+		}
 	}
+
+	// -- Cool Cube
+	// vars.points[0] = (t_vect3d){-1, 1,-1};
+	// vars.points[1] = (t_vect3d){ 1, 1,-1};
+	// vars.points[2] = (t_vect3d){ 1,-1,-1};
+	// vars.points[3] = (t_vect3d){-1,-1,-1};
+
+	// vars.points[4] = (t_vect3d){-1, 1, 1};
+	// vars.points[5] = (t_vect3d){ 1, 1, 1};
+	// vars.points[6] = (t_vect3d){ 1,-1, 1};
+	// vars.points[7] = (t_vect3d){-1,-1, 1};
+	// for (int i = 0; i < 4; i++)
+	// {
+	// 	t_point *a = f3d_to_2d(&vars, vars.points[i]);
+	// 	t_point *b = f3d_to_2d(&vars, vars.points[(i + 1) % 4]);
+	// 	draw_line(vars.img, a->x, a->y, b->x, b->y, 0xFF5C00);
+
+	// 	a = f3d_to_2d(&vars, vars.points[4 + i]);
+	// 	b = f3d_to_2d(&vars, vars.points[4 + (i + 1) % 4]);
+	// 	draw_line(vars.img, a->x, a->y, b->x, b->y, 0xFF5C00);
+
+	// 	a = f3d_to_2d(&vars, vars.points[i]);
+	// 	b = f3d_to_2d(&vars, vars.points[4 + i]);
+	// 	draw_line(vars.img, a->x, a->y, b->x, b->y, 0xFF5C00);
+	// }
 
 
 	mlx_put_image_to_window(vars.mlx, vars.win, img_data.img, 0, 0);
 	mlx_hook(vars.win, 17, 0, close_win, &vars);
-	mlx_hook(vars.win, 2, 0, rotation_handler, &vars);
+	#ifdef __linux__
+		mlx_hook(vars.win, 2, 1L<<0, rotation_handler, &vars);
+	#else
+		mlx_hook(vars.win, 2, 0, rotation_handler, &vars);
+	#endif
+
 	mlx_loop(vars.mlx);
 	//free(mlx);
 }
