@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 03:24:26 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/13 03:34:38 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/14 02:55:20 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # define KEYS_H
 
 # ifdef __linux__
+#  define X_MAX 1L<<0
 #  include <X11/keysym.h>
 #  define KEY_Q XK_q
 #  define KEY_A XK_a
@@ -31,6 +32,7 @@
 #  define KEY_Z XK_z
 #  define KEY_X XK_x
 # else
+#  define X_MAX 0
 #  define KEY_Q 12
 #  define KEY_A 0
 #  define KEY_W 13

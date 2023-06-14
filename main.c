@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/11 17:24:11 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/13 03:58:17 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/14 03:23:27 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -277,6 +277,25 @@ t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 	return (p);
 }
 
+void redraw(t_vars *vars)
+{
+	for (int i = 0; i < vars->rows - 1; i++)
+	{
+		for (int j = 0; j < vars->cols -1; j++)
+		{
+			// t_point *p = f3d_to_2d(vars, vars->pts[i][j]);
+			// draw_point(vars , *p);
+
+			t_point *p1 = f3d_to_2d(vars, vars->pts[i][j]);
+			t_point *p2 = f3d_to_2d(vars, vars->pts[(i + 1) % vars->rows][j]);
+			t_point *p3 = f3d_to_2d(vars, vars->pts[i][(j + 1) % vars->cols]);
+
+			draw_line(vars->img, p1->x, p1->y, p2->x, p2->y, 0x00FF00);
+			draw_line(vars->img, p1->x, p1->y, p3->x, p3->y, 0xFF0000);
+		}
+	}
+}
+
 int	rotation_handler(int keycode, t_vars *vars)
 {
 	printf("Clicked %d\n", keycode);
@@ -313,14 +332,7 @@ int	rotation_handler(int keycode, t_vars *vars)
 	else
 		return (0);
 	clear_img(vars);
-	for (int i = 0; i < vars->rows; i++)
-	{
-		for (int j = 0; j < vars->cols; j++)
-		{
-			t_point *p = f3d_to_2d(vars, vars->pts[i][j]);
-			draw_point(vars , *p);
-		}
-	}
+	redraw(vars);
 	// for (int i = 0; i < 4; i++)
 	// {
 	// 	t_point *a = f3d_to_2d(vars, vars->points[i]);
@@ -379,7 +391,7 @@ void parse_map(char *file_path, t_vars *vars)
 
 	vars->cols = -1;
 	vars->rows = 0;
-	// map = NULL;
+	map = NULL;
 	fd = open(file_path, O_RDONLY);
 	if (fd == -1)
 	{
@@ -482,15 +494,7 @@ int main(int argc, char** argv)
 	// 	i++;
 	// }
 
-	for (int i = 0; i < vars.rows; i++)
-	{
-		for (int j = 0; j < vars.cols; j++)
-		{
-			t_point *p = f3d_to_2d(&vars, vars.pts[i][j]);
-			draw_point(&vars , *p);
-		}
-	}
-
+	redraw(&vars);
 	// -- Cool Cube
 	// vars.points[0] = (t_vect3d){-1, 1,-1};
 	// vars.points[1] = (t_vect3d){ 1, 1,-1};
@@ -519,11 +523,7 @@ int main(int argc, char** argv)
 
 	mlx_put_image_to_window(vars.mlx, vars.win, img_data.img, 0, 0);
 	mlx_hook(vars.win, 17, 0, close_win, &vars);
-	#ifdef __linux__
-		mlx_hook(vars.win, 2, 1L<<0, rotation_handler, &vars);
-	#else
-		mlx_hook(vars.win, 2, 0, rotation_handler, &vars);
-	#endif
+	mlx_hook(vars.win, 2, X_MAX, rotation_handler, &vars);
 
 	mlx_loop(vars.mlx);
 	//free(mlx);
