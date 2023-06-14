@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/11 17:24:11 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/14 03:23:27 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/14 20:22:56 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,8 +61,8 @@ typedef struct	s_vars {
 	// z distance
 	double	distance;
 	// rotation angles
-	double	theta;
 	double	alpha;
+	double	beta;
 	double	gamma;
 	// Weak prespective
 	double	fov;
@@ -104,6 +104,15 @@ uint32_t	get_shade(uint32_t color, float shade)
 	return (r << 16 | g << 8 | b);
 }
 
+int clamp(int a, int min, int max)
+{
+	if (a > max)
+		return (max);
+	if (a < min)
+		return (min);
+	return (a);
+}
+
 
 void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2, uint32_t color)
 {
@@ -122,6 +131,10 @@ void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2, uint32_t color)
 	int	y_put = y1;
 
 	float percent = 1;
+	// x1 = clamp(x1, -1, WINDOW_WIDTH);
+	// x2 = clamp(x2, -1, WINDOW_WIDTH);
+	// y1 = clamp(y1, -1, WINDOW_HEIGHT);
+	// y2 = clamp(y2, -1, WINDOW_HEIGHT);
 	for (int x = x1; x * dir_x <= x2 * dir_x; x += dir_x)
 	{
 		int err = (y2 * (x - x1) - y1 * (x - x2)) - y_put * (x2 - x1);
@@ -164,11 +177,11 @@ uint32_t	f(uint16_t x, uint16_t a)
 {
 	x = a + mod(x - a, 360);
 	if (a <= x && x < a + 60)
-		return (255*(x - a)/60);
+		return (255 * (x - a) / 60);
 	if (a + 60 <= x && x < a + 180)
 		return (255);
 	if (a + 180 <= x && x < a + 240)
-		return (255 - 255*(x - 180 - a)/60);
+		return (255 - 255 * (x - 180 - a) / 60);
 	else
 		return (0);
 }
@@ -185,17 +198,23 @@ uint32_t	hueToRGB(uint16_t hue)
 	return (r | g | b);
 }
 
-void	clear_img(t_vars *vars)
+void	clear_img(t_data *img)
 {
-	void*	dst;
+	void	*dst;
+	int		y;
+	int		x;
 
-	for (int y = 0; y < WINDOW_HEIGHT; ++y)
+	y = 0;
+	while (y < WINDOW_HEIGHT)
 	{
-		for (int x = 0; x < WINDOW_WIDTH; ++x)
+		x = 0;
+		while (x < WINDOW_WIDTH)
 		{
-			dst = vars->img->addr + (y * vars->img->line_length + x * (vars->img->bits_per_pixel / 8));
+			dst = img->addr + (y * img->line_length + x * (img->bits_per_pixel / 8));
 			*(unsigned int*)dst = 0x000000;
+			++x;
 		}
+		++y;
 	}
 }
 
@@ -226,7 +245,7 @@ int	lineHandler(int keycode, t_vars *vars)
 		vars->line[1].x += 1;
 	else if (keycode == KEY_F)
 		vars->line[1].y += 1;
-	clear_img(vars);
+	clear_img(vars->img);
 	draw_line(vars->img,
 		vars->line[0].x, vars->line[0].y,
 		vars->line[1].x, vars->line[1].y, 0xFFFFFF);
@@ -241,6 +260,23 @@ void	draw_point(t_vars *vars, t_point p)
 	my_mlx_pixel_put(vars->img, p.x - 1, p.y, 0xFFFFFF);
 	my_mlx_pixel_put(vars->img, p.x, p.y + 1, 0xFFFFFF);
 	my_mlx_pixel_put(vars->img, p.x, p.y - 1, 0xFFFFFF);
+}
+
+float	check_zero(float arith)
+{
+	if (arith == 0)
+		return (1);
+	return (arith);
+}
+
+double	rad_to_deg(double angle)
+{
+	return (mod(angle * 360 / TAU, 360));
+}
+
+float	lerp(uint32_t a, uint32_t b, float t)
+{
+	return (a * (1 - t) + b * t);
 }
 
 t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
@@ -259,54 +295,94 @@ t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 
 	// Rotation around Y
 	old = x;
-	x = x * cos(vars->alpha) + z * sin(vars->alpha);
+	x = x * cos(vars->beta) + z * sin(vars->beta);
 	// y = y
-	z =  - old * sin(vars->alpha) + z * cos(vars->alpha);
+	z =  - old * sin(vars->beta) + z * cos(vars->beta);
 
 	// Rotation around Z
 	old = x;
-	x = x * cos(vars->theta) - y * sin(vars->theta);
-	y = old * sin(vars->theta) + y * cos(vars->theta);
+	x = x * cos(vars->alpha) - y * sin(vars->alpha);
+	y = old * sin(vars->alpha) + y * cos(vars->alpha);
 	// z = z;
 
+	if (z > vars->distance)
+	{
+		free(p);
+		return (NULL);
+	}
 
 	// ! need to understand more why it works ! :)
 	// TODO : Add more vars distance not used
-	p->x = (WINDOW_WIDTH / 2) + vars->scale * x * vars->fov / ((2 + vars->fov) - (z - vars->distance));
-	p->y = (WINDOW_HEIGHT / 2) + vars->scale * y * vars->fov / ((2 + vars->fov) - (z - vars->distance));
+	p->x = (WINDOW_WIDTH / 2) + vars->scale * x * vars->fov / check_zero((2 + vars->fov) - (z - vars->distance));
+	p->y = (WINDOW_HEIGHT / 2) + vars->scale * y * vars->fov / check_zero((2 + vars->fov) - (z - vars->distance));
 	return (p);
 }
 
+void	clear_console()
+{
+	write(1, "\e[1;1H\e[2J", 10);
+}
+
+
+// ! Debug purposes
+void	print_info(t_vars *vars)
+{
+	printf("Dimensions: (%d, %d)\n", vars->rows, vars->cols);
+	printf("Rotation: (%.2f, %.2f, %.2f)\n", rad_to_deg(vars->alpha), rad_to_deg(vars->beta), rad_to_deg(vars->gamma));
+	printf("Scale: %d, Dist: %f, Fov: %f\n", vars->scale, vars->distance, vars->fov);
+}
+
+
 void redraw(t_vars *vars)
 {
-	for (int i = 0; i < vars->rows - 1; i++)
+	int	i;
+	int	j;
+
+	clear_console();
+	print_info(vars);
+	i = 0;
+	while (i < vars->rows)
 	{
-		for (int j = 0; j < vars->cols -1; j++)
+		j = 0;
+		while (j < vars->cols)
 		{
 			// t_point *p = f3d_to_2d(vars, vars->pts[i][j]);
 			// draw_point(vars , *p);
 
-			t_point *p1 = f3d_to_2d(vars, vars->pts[i][j]);
-			t_point *p2 = f3d_to_2d(vars, vars->pts[(i + 1) % vars->rows][j]);
-			t_point *p3 = f3d_to_2d(vars, vars->pts[i][(j + 1) % vars->cols]);
+			t_vect3d vec1 = vars->pts[i][j];
+			t_vect3d vec2 = vars->pts[(i + 1) % vars->rows][j];
+			t_vect3d vec3 = vars->pts[i][(j + 1) % vars->cols];
+			t_point *p1 = f3d_to_2d(vars, vec1);
+			t_point *p2 = f3d_to_2d(vars, vec2);
+			t_point *p3 = f3d_to_2d(vars, vec3);
+			if (!p1 || !p2 || !p3)
+			{
+				++j;
+				continue ;
+			}
 
-			draw_line(vars->img, p1->x, p1->y, p2->x, p2->y, 0x00FF00);
-			draw_line(vars->img, p1->x, p1->y, p3->x, p3->y, 0xFF0000);
+			if (i != vars->rows - 1)
+				draw_line(vars->img, p1->x, p1->y, p2->x, p2->y,  lerp(0xFFFFFF, 0xFF5C00, vars->pts[(i + 1) % vars->rows][j].z / 10));
+			if (j != vars->rows - 1)
+				draw_line(vars->img, p1->x, p1->y, p3->x, p3->y, lerp(0xFFFFFF, 0xFF5C00, vars->pts[i][(j + 1) % vars->cols].z / 10));
+			++j;
 		}
+		++i;
 	}
 }
+
 
 int	rotation_handler(int keycode, t_vars *vars)
 {
 	printf("Clicked %d\n", keycode);
 	if (keycode == KEY_Q)
-		vars->theta += TAU / 32;
-	else if (keycode == KEY_A)
-		vars->theta -= TAU / 32;
-	else if (keycode == KEY_W)
 		vars->alpha += TAU / 32;
-	else if (keycode == KEY_S)
+	else if (keycode == KEY_A)
 		vars->alpha -= TAU / 32;
+	else if (keycode == KEY_W)
+		vars->beta += TAU / 32;
+	else if (keycode == KEY_S)
+		vars->beta -= TAU / 32;
 	else if (keycode == KEY_E)
 		vars->gamma += TAU / 32;
 	else if (keycode == KEY_D)
@@ -325,13 +401,13 @@ int	rotation_handler(int keycode, t_vars *vars)
 		vars->scale -= 1;
 	else if (keycode == KEY_R)
 	{
-		vars->theta = 0;
 		vars->alpha = 0;
+		vars->beta = 0;
 		vars->gamma = 0;
 	}
 	else
 		return (0);
-	clear_img(vars);
+	clear_img(vars->img);
 	redraw(vars);
 	// for (int i = 0; i < 4; i++)
 	// {
@@ -343,7 +419,7 @@ int	rotation_handler(int keycode, t_vars *vars)
 	// 	b = f3d_to_2d(vars, vars->points[4 + (i + 1) % 4]);
 	// 	draw_line(vars->img, a->x, a->y, b->x, b->y, 0xFF5C00);
 
-	// 	a = f3d_to_2d(vars, vars->points[i]);
+    // 	a = f3d_to_2d(vars, vars->points[i]);
 	// 	b = f3d_to_2d(vars, vars->points[4 + i]);
 	// 	draw_line(vars->img, a->x, a->y, b->x, b->y, 0xFF5C00);
 	// }
@@ -399,13 +475,15 @@ void parse_map(char *file_path, t_vars *vars)
 		exit(-1);
 	}
 
+	// Split things
 	while (str)
 	{
 		str = get_next_line(fd);
 		if (str)
 		{
 			vars->rows++;
-			str[ft_strlen(str) - 1] = '\0';
+			if (ft_strchr(str, '\n'))
+				str[ft_strlen(str) - 1] = '\0';
 		}
 		if (vars->cols == -1)
 			vars->cols = count_words(str, ' ');
@@ -418,6 +496,7 @@ void parse_map(char *file_path, t_vars *vars)
 
 	int i = 0;
 	int j;
+	// Actual parsing
 	while (map)
 	{
 		j = 0;
@@ -425,7 +504,7 @@ void parse_map(char *file_path, t_vars *vars)
 		split = (char **)map->content;
 		while (j < vars->cols)
 		{
-			vars->pts[i][j] = (t_vect3d){i - vars->rows / 2, j - vars->cols / 2, ft_atoi(split[j])};
+			vars->pts[i][j] = (t_vect3d){j - vars->cols / 2, i - vars->rows / 2, ft_atoi(split[j])};
 			j++;
 		}
 		i++;
@@ -448,12 +527,8 @@ int main(int argc, char** argv)
 	if (argc == 2)
 		parse_map(argv[1], &vars);
 
-	// exit(0);
-
-
-
-	vars.theta = 0;
 	vars.alpha = 0;
+	vars.beta = 0;
 	vars.gamma = 0;
 	vars.img = &img_data;
 	vars.distance = 2;

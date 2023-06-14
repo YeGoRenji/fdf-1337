@@ -1,11 +1,13 @@
 NAME = fdf
 
-CFLAGS = -Wall -Wextra -Werror -O3 -Ofast #-g
+CFLAGS = -Wall -Wextra -Werror -O3 -Ofast -fsanitize=address #-g
 
 OBJSFOLDER = objs/
 
 SRCS_GNL = get_next_line.c \
 	  get_next_line_utils.c
+
+OS := $(shell uname -s)
 
 SRCS_PARSER = ft_split.c \
 			  ft_strlen.c \
@@ -28,21 +30,30 @@ OBJS_FILES = $(SRCS_GNL:.c=.o) \
 
 OBJS = $(foreach obj, $(OBJS_FILES), $(OBJSFOLDER)$(obj))
 
-all: $(NAME)
 
-# $(NAME): $(OBJS)
-# 	$(CC) $(OBJS) $(CFLAGS) -lmlx -framework OpenGL -framework AppKit -o $(NAME)
+all: objs $(NAME)
 
-# Linux
+
+objs:
+	@mkdir objs
+
+ifeq ($(OS), Darwin)
+
+$(NAME): $(OBJS)
+	$(CC) $(OBJS) $(CFLAGS) -lmlx -framework OpenGL -framework AppKit -o $(NAME)
+
+$(OBJSFOLDER)%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+else
+
 $(NAME): $(OBJS)
 	$(CC) $(OBJS) $(CFLAGS) -Lmlx_linux -lmlx_Linux -L/usr/lib -Imlx_linux -lXext -lX11 -lm -lz -o $(NAME)
 
-# Linux
-# $(OBJSFOLDER)%.o: %.c
-# 	$(CC) $(CFLAGS) -c $< -o $@
-
 $(OBJSFOLDER)%.o: %.c
 	$(CC) $(CFLAGS) -I/usr/include -Imlx_linux  -c $< -o $@
+
+endif
 
 $(OBJSFOLDER)%.o: gnl/%.c gnl/get_next_line.h
 	$(CC) $(CFLAGS) -c $< -o $@
