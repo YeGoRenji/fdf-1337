@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/11 17:24:11 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/14 20:22:56 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/15 16:41:12 ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,7 @@
 #include "gnl/get_next_line.h"
 #include "include/parser.h"
 #include "include/keys.h"
+#include "include/maths.h"
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
@@ -88,31 +89,76 @@ void	swap_int(int *a, int *b)
 	*b = tmp;
 }
 
-uint32_t	get_shade(uint32_t color, float shade)
+void	swap_pts(t_point **pt1, t_point **pt2)
 {
-	// 0xFF FF FF
-	uint32_t r = (color & 0xFF0000) >> 16;
-	uint32_t g = (color & 0x00FF00) >> 8;
-	uint32_t b = (color & 0x0000FF) >> 0;
-	if (shade < 0)
-		shade = 0;
-	if (shade > 1)
-		shade = 1;
-	r *= shade;
-	g *= shade;
-	b *= shade;
-	return (r << 16 | g << 8 | b);
+	t_point *tmp = *pt1;
+	*pt1 = *pt2;
+	*pt2 = tmp;
 }
 
-int clamp(int a, int min, int max)
-{
-	if (a > max)
-		return (max);
-	if (a < min)
-		return (min);
-	return (a);
-}
+// A*(1-t) + t*B = p
+// A - At + tB = p
+// A + t (B - A) = p
+// (A - p) / (A - B) = t
 
+
+
+void	draw_line_2(t_data* img_ptr, t_point pt1, t_point pt2, uint32_t color)
+{
+	int y_x_flip = 0;
+
+	// This is where a line shall be born !
+	if (ABS(pt2.y - pt1.y) > ABS(pt2.x - pt1.x))
+	{
+		y_x_flip = 1;
+		// swap_pts(&pt1, &pt2);
+		// swap_int(&x1, &y1);
+		// swap_int(&x2, &y2);
+
+		swap_int(&pt1.x, &pt1.y);
+		swap_int(&pt2.x, &pt2.y);
+	}
+
+	int	dir_y = (pt2.y - pt1.y > 0) ? 1 : -1;
+	int	dir_x = (pt2.x - pt1.x > 0) ? 1 : -1;
+	int	y_put = pt1.y;
+
+	float percent = 1;
+	// pt1.x = clamp(pt1.x, -1, WINDOW_WIDTH);
+	// pt2.x = clamp(pt2.x, -1, WINDOW_WIDTH);
+	// pt1.y = clamp(pt1.y, -1, WINDOW_HEIGHT);
+	// pt2.y = clamp(pt2.y, -1, WINDOW_HEIGHT);
+	for (int x = pt1.x; x * dir_x <= pt2.x * dir_x; x += dir_x)
+	{
+		int err = (pt2.y * (x - pt1.x) - pt1.y * (x - pt2.x)) - y_put * (pt2.x - pt1.x);
+		color = lerp_color(pt1.color, pt2.color, inv_lerp(pt1.x, pt2.x, x));
+		if (AA)
+		{
+			// ! You can make this better
+			if (y_x_flip)
+			{
+				my_mlx_pixel_put(img_ptr, y_put - dir_y, x - dir_x, get_shade(color, percent - 0.2));
+				my_mlx_pixel_put(img_ptr, y_put + dir_y, x - dir_x, get_shade(color, 1 - percent));
+			}
+			else
+			{
+				my_mlx_pixel_put(img_ptr, x - dir_x, y_put - dir_y, get_shade(color, percent - 0.2));
+				my_mlx_pixel_put(img_ptr, x - dir_x, y_put + dir_y, get_shade(color, 1 - percent));
+			}
+		}
+		if (ABS(err) >= 0.5 * ABS(pt2.x - pt1.x))
+		{
+			percent = 1;
+			y_put += dir_y;
+		}
+		percent -= 0.05;
+		if (percent < 0) percent = 0;
+		if (y_x_flip)
+			my_mlx_pixel_put(img_ptr, y_put, x, color);
+		else
+			my_mlx_pixel_put(img_ptr, x, y_put, color);
+	}
+}
 
 void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2, uint32_t color)
 {
@@ -166,37 +212,6 @@ void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2, uint32_t color)
 	}
 }
 
-int mod(int x, int n)
-{
-	while (x < 0)
-		x += n;
-	return (x % n);
-}
-
-uint32_t	f(uint16_t x, uint16_t a)
-{
-	x = a + mod(x - a, 360);
-	if (a <= x && x < a + 60)
-		return (255 * (x - a) / 60);
-	if (a + 60 <= x && x < a + 180)
-		return (255);
-	if (a + 180 <= x && x < a + 240)
-		return (255 - 255 * (x - 180 - a) / 60);
-	else
-		return (0);
-}
-
-uint32_t	hueToRGB(uint16_t hue)
-{
-	uint32_t	r;
-	uint32_t	g;
-	uint32_t	b;
-	hue = hue % 360;
-	r = f(hue, 240) << 16;
-	g = f(hue, 0) << 8;
-	b = f(hue, 120) << 0;
-	return (r | g | b);
-}
 
 void	clear_img(t_data *img)
 {
@@ -274,10 +289,6 @@ double	rad_to_deg(double angle)
 	return (mod(angle * 360 / TAU, 360));
 }
 
-float	lerp(uint32_t a, uint32_t b, float t)
-{
-	return (a * (1 - t) + b * t);
-}
 
 t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 {
@@ -313,8 +324,9 @@ t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 
 	// ! need to understand more why it works ! :)
 	// TODO : Add more vars distance not used
-	p->x = (WINDOW_WIDTH / 2) + vars->scale * x * vars->fov / check_zero((2 + vars->fov) - (z - vars->distance));
-	p->y = (WINDOW_HEIGHT / 2) + vars->scale * y * vars->fov / check_zero((2 + vars->fov) - (z - vars->distance));
+	p->x = (WINDOW_WIDTH / 2) + vars->scale * x * 1 / check_zero(vars->fov * (1 - (z - vars->distance)));
+	p->y = (WINDOW_HEIGHT / 2) + vars->scale * y *  1 / check_zero(vars->fov * (1 - (z - vars->distance)));
+	p->color = hueToRGB(10 * point3d.z);
 	return (p);
 }
 
@@ -361,10 +373,21 @@ void redraw(t_vars *vars)
 				continue ;
 			}
 
-			if (i != vars->rows - 1)
-				draw_line(vars->img, p1->x, p1->y, p2->x, p2->y,  lerp(0xFFFFFF, 0xFF5C00, vars->pts[(i + 1) % vars->rows][j].z / 10));
-			if (j != vars->rows - 1)
-				draw_line(vars->img, p1->x, p1->y, p3->x, p3->y, lerp(0xFFFFFF, 0xFF5C00, vars->pts[i][(j + 1) % vars->cols].z / 10));
+			// if (i != vars->rows - 1)
+			// 	draw_line(vars->img, p1->x, p1->y, p2->x, p2->y,  lerp(0xFFFFFF, 0xFF5C00, vars->pts[(i + 1) % vars->rows][j].z / 10));
+			// if (j != vars->cols - 1)
+			// 	draw_line(vars->img, p1->x, p1->y, p3->x, p3->y, lerp(0xFFFFFF, 0xFF5C00, vars->pts[i][(j + 1) % vars->cols].z / 10));
+			// if (i < vars->rows - 1)
+			// 	draw_line_2(vars->img, (t_point){p1->x, p1->y, 0}, *p2, lerp(0xFFFFFF, 0xFF5C00, vars->pts[(i + 1) % vars->rows][j].z / 10));
+			// if (j < vars->cols - 1)
+			// 	draw_line_2(vars->img, (t_point){p1->x, p1->y, 0}, *p3, lerp(0xFFFFFF, 0xFF5C00, vars->pts[i][(j + 1) % vars->cols].z / 10));
+			if (i < vars->rows - 1)
+				draw_line_2(vars->img, (t_point){p1->x, p1->y, p1->color}, *p2, hueToRGB(360 * vars->pts[(i + 1) % vars->rows][j].z / 10));
+			if (j < vars->cols - 1)
+				draw_line_2(vars->img, (t_point){p1->x, p1->y, p1->color}, *p3, hueToRGB(360 * vars->pts[i][(j + 1) % vars->cols].z / 10));
+			free(p1);
+			free(p2);
+			free(p3);
 			++j;
 		}
 		++i;
@@ -407,6 +430,8 @@ int	rotation_handler(int keycode, t_vars *vars)
 	}
 	else
 		return (0);
+	if (vars->fov < 0)
+		vars->fov = 0;
 	clear_img(vars->img);
 	redraw(vars);
 	// for (int i = 0; i < 4; i++)
@@ -529,11 +554,12 @@ int main(int argc, char** argv)
 
 	vars.alpha = 0;
 	vars.beta = 0;
-	vars.gamma = 0;
+	vars.gamma = TAU / 8;
 	vars.img = &img_data;
-	vars.distance = 2;
-	vars.fov = 2;
+	vars.fov = 0.5;
 	vars.scale = 200;
+	// vars.distance = (vars.rows > vars.cols ? vars.rows/2 : vars.cols/2) / vars.fov;
+	vars.distance = 10;
 	// vars.line[0] = (t_point){WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
 	// vars.line[1] = (t_point){3*WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
 	vars.mlx = mlx_init();

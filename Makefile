@@ -24,8 +24,12 @@ SRCS_PARSER = ft_split.c \
 			  ft_lstnew.c \
 			  ft_lstsize.c
 
+SRCS_MATHS = maths.c \
+			 colors.c
+
 OBJS_FILES = $(SRCS_GNL:.c=.o) \
 			 $(SRCS_PARSER:.c=.o) \
+			 $(SRCS_MATHS:.c=.o) \
 			 main.o
 
 OBJS = $(foreach obj, $(OBJS_FILES), $(OBJSFOLDER)$(obj))
@@ -56,6 +60,9 @@ $(OBJSFOLDER)%.o: %.c
 endif
 
 $(OBJSFOLDER)%.o: gnl/%.c gnl/get_next_line.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJSFOLDER)%.o: maths/%.c include/maths.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJSFOLDER)%.o: parser/libft/%.c include/parser.h
