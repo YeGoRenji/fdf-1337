@@ -13,6 +13,7 @@
 #ifndef MATHS_H
 # define MATHS_H
 # include <stdlib.h>
+# include <stdint.h>
 
 typedef struct s_color
 {

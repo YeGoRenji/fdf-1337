@@ -332,7 +332,8 @@ t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 
 void	clear_console()
 {
-	write(1, "\e[1;1H\e[2J", 10);
+	int a = write(1, "\e[1;1H\e[2J", 10);
+	(void)a;
 }
 
 
@@ -515,6 +516,7 @@ void parse_map(char *file_path, t_vars *vars)
 		split = ft_split(str, ' ');
 		if (split)
 			ft_lstadd_back(&map, ft_lstnew(split));
+		free(str);
 		// printSPLIT(ft_split(str, ' '));
 	}
 	vars->pts = malloc(vars->rows * sizeof(t_vect3d*));
