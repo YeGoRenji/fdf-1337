@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/15 18:18:54 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/15 18:42:57 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/16 13:49:06 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,6 @@ int	clamp(int a, int min, int max)
 
 float	lerp(uint32_t a, uint32_t b, float t)
 {
-	// if (b < a)
-	// {
-	// 	int tmp = a;
-	// 	a = b;
-	// 	b = tmp;
-	// }
 	return (a * (1 - t) + b * t);
 }
 

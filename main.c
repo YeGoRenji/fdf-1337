@@ -10,17 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdlib.h>
 #include <mlx.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <math.h>
 #include "gnl/get_next_line.h"
 #include "include/parser.h"
 #include "include/keys.h"
 #include "include/maths.h"
+#include "include/structs.h"
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
@@ -29,47 +24,7 @@
 #define AA 0
 #define AA_SHADE 150
 
-typedef struct	s_point {
-	int			x;
-	int			y;
-	uint32_t	color;
-}				t_point;
 
-typedef struct	s_vect3d
-{
-	double x;
-	double y;
-	double z;
-}				t_vect3d;
-
-typedef struct	s_data {
-	void	*img;
-	char	*addr;
-	int		bits_per_pixel;
-	int		line_length;
-	int		endian;
-}				t_data;
-
-typedef struct	s_vars {
-	void		*mlx;
-	void		*win;
-	t_data		*img;
-	t_point		line[2];
-	t_vect3d	points[8];
-	t_vect3d	**pts;
-	int rows;
-	int cols;
-	// z distance
-	double	distance;
-	// rotation angles
-	double	alpha;
-	double	beta;
-	double	gamma;
-	// Weak prespective
-	double	fov;
-	// Scale
-	int scale;
-}				t_vars;
 
 void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 {
@@ -160,57 +115,57 @@ void	draw_line_2(t_data* img_ptr, t_point pt1, t_point pt2, uint32_t color)
 	}
 }
 
-void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2, uint32_t color)
-{
-	int y_x_flip = 0;
+// void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2, uint32_t color)
+// {
+// 	int y_x_flip = 0;
 
-	// This is where a line shall be born !
-	if (ABS(y2 - y1) > ABS(x2 - x1))
-	{
-		y_x_flip = 1;
-		swap_int(&x1, &y1);
-		swap_int(&x2, &y2);
-	}
+// 	// This is where a line shall be born !
+// 	if (ABS(y2 - y1) > ABS(x2 - x1))
+// 	{
+// 		y_x_flip = 1;
+// 		swap_int(&x1, &y1);
+// 		swap_int(&x2, &y2);
+// 	}
 
-	int	dir_y = (y2 - y1 > 0) ? 1 : -1;
-	int	dir_x = (x2 - x1 > 0) ? 1 : -1;
-	int	y_put = y1;
+// 	int	dir_y = (y2 - y1 > 0) ? 1 : -1;
+// 	int	dir_x = (x2 - x1 > 0) ? 1 : -1;
+// 	int	y_put = y1;
 
-	float percent = 1;
-	// x1 = clamp(x1, -1, WINDOW_WIDTH);
-	// x2 = clamp(x2, -1, WINDOW_WIDTH);
-	// y1 = clamp(y1, -1, WINDOW_HEIGHT);
-	// y2 = clamp(y2, -1, WINDOW_HEIGHT);
-	for (int x = x1; x * dir_x <= x2 * dir_x; x += dir_x)
-	{
-		int err = (y2 * (x - x1) - y1 * (x - x2)) - y_put * (x2 - x1);
-		if (AA)
-		{
-			// ! You can make this better
-			if (y_x_flip)
-			{
-				my_mlx_pixel_put(img_ptr, y_put - dir_y, x - dir_x, get_shade(color, percent - 0.2));
-				my_mlx_pixel_put(img_ptr, y_put + dir_y, x - dir_x, get_shade(color, 1 - percent));
-			}
-			else
-			{
-				my_mlx_pixel_put(img_ptr, x - dir_x, y_put - dir_y, get_shade(color, percent - 0.2));
-				my_mlx_pixel_put(img_ptr, x - dir_x, y_put + dir_y, get_shade(color, 1 - percent));
-			}
-		}
-		if (ABS(err) >= 0.5 * ABS(x2 - x1))
-		{
-			percent = 1;
-			y_put += dir_y;
-		}
-		percent -= 0.05;
-		if (percent < 0) percent = 0;
-		if (y_x_flip)
-			my_mlx_pixel_put(img_ptr, y_put, x, color);
-		else
-			my_mlx_pixel_put(img_ptr, x, y_put, color);
-	}
-}
+// 	float percent = 1;
+// 	// x1 = clamp(x1, -1, WINDOW_WIDTH);
+// 	// x2 = clamp(x2, -1, WINDOW_WIDTH);
+// 	// y1 = clamp(y1, -1, WINDOW_HEIGHT);
+// 	// y2 = clamp(y2, -1, WINDOW_HEIGHT);
+// 	for (int x = x1; x * dir_x <= x2 * dir_x; x += dir_x)
+// 	{
+// 		int err = (y2 * (x - x1) - y1 * (x - x2)) - y_put * (x2 - x1);
+// 		if (AA)
+// 		{
+// 			// ! You can make this better
+// 			if (y_x_flip)
+// 			{
+// 				my_mlx_pixel_put(img_ptr, y_put - dir_y, x - dir_x, get_shade(color, percent - 0.2));
+// 				my_mlx_pixel_put(img_ptr, y_put + dir_y, x - dir_x, get_shade(color, 1 - percent));
+// 			}
+// 			else
+// 			{
+// 				my_mlx_pixel_put(img_ptr, x - dir_x, y_put - dir_y, get_shade(color, percent - 0.2));
+// 				my_mlx_pixel_put(img_ptr, x - dir_x, y_put + dir_y, get_shade(color, 1 - percent));
+// 			}
+// 		}
+// 		if (ABS(err) >= 0.5 * ABS(x2 - x1))
+// 		{
+// 			percent = 1;
+// 			y_put += dir_y;
+// 		}
+// 		percent -= 0.05;
+// 		if (percent < 0) percent = 0;
+// 		if (y_x_flip)
+// 			my_mlx_pixel_put(img_ptr, y_put, x, color);
+// 		else
+// 			my_mlx_pixel_put(img_ptr, x, y_put, color);
+// 	}
+// }
 
 
 void	clear_img(t_data *img)
@@ -238,35 +193,36 @@ int	close_win(t_vars *vars)
 	puts("Closed Window !");
 	mlx_destroy_window(vars->mlx, vars->win);
 	// ! free stuff ?
+	system("leaks ./fdf");
 	exit(0);
 }
 
-int	lineHandler(int keycode, t_vars *vars)
-{
-	// printf("Clicked %d\n", keycode);
-	if (keycode == KEY_Q)
-		vars->line[0].x -= 1;
-	else if (keycode == KEY_A)
-		vars->line[0].y -= 1;
-	else if (keycode == KEY_W)
-		vars->line[0].x += 1;
-	else if (keycode == KEY_S)
-		vars->line[0].y += 1;
-	else if (keycode == KEY_E)
-		vars->line[1].x -= 1;
-	else if (keycode == KEY_D)
-		vars->line[1].y -= 1;
-	else if (keycode == KEY_R)
-		vars->line[1].x += 1;
-	else if (keycode == KEY_F)
-		vars->line[1].y += 1;
-	clear_img(vars->img);
-	draw_line(vars->img,
-		vars->line[0].x, vars->line[0].y,
-		vars->line[1].x, vars->line[1].y, 0xFFFFFF);
-	mlx_put_image_to_window(vars->mlx, vars->win, vars->img->img, 0, 0);
-	return (0);
-}
+// int	lineHandler(int keycode, t_vars *vars)
+// {
+// 	// printf("Clicked %d\n", keycode);
+// 	if (keycode == KEY_Q)
+// 		vars->line[0].x -= 1;
+// 	else if (keycode == KEY_A)
+// 		vars->line[0].y -= 1;
+// 	else if (keycode == KEY_W)
+// 		vars->line[0].x += 1;
+// 	else if (keycode == KEY_S)
+// 		vars->line[0].y += 1;
+// 	else if (keycode == KEY_E)
+// 		vars->line[1].x -= 1;
+// 	else if (keycode == KEY_D)
+// 		vars->line[1].y -= 1;
+// 	else if (keycode == KEY_R)
+// 		vars->line[1].x += 1;
+// 	else if (keycode == KEY_F)
+// 		vars->line[1].y += 1;
+// 	clear_img(vars->img);
+// 	draw_line(vars->img,
+// 		vars->line[0].x, vars->line[0].y,
+// 		vars->line[1].x, vars->line[1].y, 0xFFFFFF);
+// 	mlx_put_image_to_window(vars->mlx, vars->win, vars->img->img, 0, 0);
+// 	return (0);
+// }
 
 void	draw_point(t_vars *vars, t_point p)
 {
@@ -294,29 +250,37 @@ t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 {
 	t_point *p = malloc(sizeof(t_point));
 
-	double x = point3d.x;
-	double y = point3d.y;
-	double z = point3d.z;
+	// double x = point3d.x;
+	// double y = point3d.y;
+	// double z = point3d.z;
+	t_vect3d result_pt;
 
-	// Rotation around X
-	// x = x
-	double old = y;
-	y = y * cos(vars->gamma) - z * sin(vars->gamma);
-	z = old * sin(vars->gamma) + z * cos(vars->gamma);
+	result_pt = (t_vect3d){point3d.x, point3d.y, point3d.z};
 
-	// Rotation around Y
-	old = x;
-	x = x * cos(vars->beta) + z * sin(vars->beta);
-	// y = y
-	z =  - old * sin(vars->beta) + z * cos(vars->beta);
+	apply_rot_x(vars->alpha, &result_pt);
+	apply_rot_y(vars->beta, &result_pt);
+	apply_rot_z(vars->gamma, &result_pt);
+	// // Rotation around X
+	// // x = x
+	// double old = y;
+	// y = y * cos(vars->gamma) - z * sin(vars->gamma);
+	// z = old * sin(vars->gamma) + z * cos(vars->gamma);
 
-	// Rotation around Z
-	old = x;
-	x = x * cos(vars->alpha) - y * sin(vars->alpha);
-	y = old * sin(vars->alpha) + y * cos(vars->alpha);
-	// z = z;
+	// // Rotation around Y
+	// old = x;
+	// x = x * cos(vars->beta) + z * sin(vars->beta);
+	// // y = y
+	// z =  - old * sin(vars->beta) + z * cos(vars->beta);
 
-	if (z > vars->distance)
+	// // Rotation around Z
+	// old = x;
+	// x = x * cos(vars->alpha) - y * sin(vars->alpha);
+	// y = old * sin(vars->alpha) + y * cos(vars->alpha);
+	// // z = z;
+
+
+	double prespect = check_zero(vars->fov * (1 - (result_pt.z - vars->distance)));
+	if (prespect < 0)
 	{
 		free(p);
 		return (NULL);
@@ -324,8 +288,8 @@ t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 
 	// ! need to understand more why it works ! :)
 	// TODO : Add more vars distance not used
-	p->x = (WINDOW_WIDTH / 2) + vars->scale * x * 1 / check_zero(vars->fov * (1 - (z - vars->distance)));
-	p->y = (WINDOW_HEIGHT / 2) + vars->scale * y *  1 / check_zero(vars->fov * (1 - (z - vars->distance)));
+	p->x = (WINDOW_WIDTH / 2) + vars->scale * result_pt.x / prespect;
+	p->y = (WINDOW_HEIGHT / 2) + vars->scale * result_pt.y / prespect;
 	p->color = hueToRGB(10 * point3d.z);
 	return (p);
 }
@@ -351,8 +315,8 @@ void redraw(t_vars *vars)
 	int	i;
 	int	j;
 
-	clear_console();
-	print_info(vars);
+	// clear_console();
+	// print_info(vars);
 	i = 0;
 	while (i < vars->rows)
 	{
@@ -370,6 +334,9 @@ void redraw(t_vars *vars)
 			t_point *p3 = f3d_to_2d(vars, vec3);
 			if (!p1 || !p2 || !p3)
 			{
+				free(p1);
+				free(p2);
+				free(p3);
 				++j;
 				continue ;
 			}
@@ -483,6 +450,25 @@ int	split_len(char **split)
 	return (len);
 }
 
+void	free_split(void *split)
+{
+	char	**head;
+	int		i;
+
+	head = (char **)split;
+	while (head)
+	{
+		i = 0;
+		while (head[i])
+		{
+			free(head[i]);
+			i++;
+		}
+		head++;
+	}
+	free(split);
+}
+
 void parse_map(char *file_path, t_vars *vars)
 {
 	int		fd;
@@ -538,7 +524,7 @@ void parse_map(char *file_path, t_vars *vars)
 		map = map->next;
 	}
 
-	printf("Got (%d, %d)\n", vars->rows, vars->cols);
+	ft_lstclear(&map, free_split);
 }
 
 int main(int argc, char** argv)
@@ -556,12 +542,13 @@ int main(int argc, char** argv)
 
 	vars.alpha = 0;
 	vars.beta = 0;
-	vars.gamma = TAU / 8;
+	// vars.gamma = TAU / 8;
+	vars.gamma = 0;
 	vars.img = &img_data;
 	vars.fov = 0.5;
 	vars.scale = 200;
-	// vars.distance = (vars.rows > vars.cols ? vars.rows/2 : vars.cols/2) / vars.fov;
-	vars.distance = 10;
+	// vars.distance = (vars.rows > vars.cols ? vars.rows : vars.cols) / (2 * vars.fov);
+	vars.distance = 200;
 	// vars.line[0] = (t_point){WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
 	// vars.line[1] = (t_point){3*WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
 	vars.mlx = mlx_init();

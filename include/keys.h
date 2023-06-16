@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 03:24:26 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/14 02:55:20 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/16 13:48:58 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,10 @@
 #  define KEY_H 4
 #  define KEY_Z 6
 #  define KEY_X 7
+#  define KEY_LEFT 123
+#  define KEY_RIGHT 124
+#  define KEY_DOWN 125
+#  define KEY_UP 126
 # endif
 
 #endif

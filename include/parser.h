@@ -6,14 +6,13 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 20:47:08 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/13 02:36:24 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/16 18:27:17 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PARSER_H
 # define PARSER_H
-
-# include <stdlib.h>
+# include "structs.h"
 
 typedef struct s_list
 {

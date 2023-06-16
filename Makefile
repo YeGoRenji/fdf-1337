@@ -1,6 +1,6 @@
 NAME = fdf
 
-CFLAGS = -Wall -Wextra -Werror -O3 -Ofast -fsanitize=address #-g
+CFLAGS = -Wall -Wextra -Werror -O3 #-Ofast #-fsanitize=address #-g
 
 OBJSFOLDER = objs/
 
@@ -25,7 +25,8 @@ SRCS_PARSER = ft_split.c \
 			  ft_lstsize.c
 
 SRCS_MATHS = maths.c \
-			 colors.c
+			 colors.c \
+			 matrix.c
 
 OBJS_FILES = $(SRCS_GNL:.c=.o) \
 			 $(SRCS_PARSER:.c=.o) \
