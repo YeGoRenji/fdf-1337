@@ -11,9 +11,11 @@ OS := $(shell uname -s)
 
 SRCS_PARSER = ft_split.c \
 			  ft_strlen.c \
+			  ft_tolower.c \
 			  ft_strlcpy.c \
 			  ft_memcmp.c \
 			  ft_atoi.c \
+			  ft_atoi_base.c \
 			  ft_lstadd_back.c  \
 			  ft_lstadd_front.c \
 			  ft_lstclear.c \
@@ -22,7 +24,8 @@ SRCS_PARSER = ft_split.c \
 			  ft_lstlast.c \
 			  ft_lstmap.c \
 			  ft_lstnew.c \
-			  ft_lstsize.c
+			  ft_lstsize.c \
+			  parser.c
 
 SRCS_MATHS = maths.c \
 			 colors.c \
@@ -35,6 +38,7 @@ OBJS_FILES = $(SRCS_GNL:.c=.o) \
 
 OBJS = $(foreach obj, $(OBJS_FILES), $(OBJSFOLDER)$(obj))
 
+GLOBAL_HEADERS = include/structs.h include/keys.h
 
 all: objs $(NAME)
 
@@ -60,14 +64,21 @@ $(OBJSFOLDER)%.o: %.c
 
 endif
 
-$(OBJSFOLDER)%.o: gnl/%.c gnl/get_next_line.h
-	$(CC) $(CFLAGS) -c $< -o $@
+$(OBJSFOLDER)%.o: gnl/%.c gnl/get_next_line.h $(GLOBAL_HEADERS)
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo "Compiling $<..."
 
-$(OBJSFOLDER)%.o: maths/%.c include/maths.h
-	$(CC) $(CFLAGS) -c $< -o $@
+$(OBJSFOLDER)%.o: maths/%.c include/maths.h $(GLOBAL_HEADERS)
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo "Compiling $<..."
 
-$(OBJSFOLDER)%.o: parser/libft/%.c include/parser.h
-	$(CC) $(CFLAGS) -c $< -o $@
+$(OBJSFOLDER)%.o: parser/libft/%.c include/parser.h $(GLOBAL_HEADERS)
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo "Compiling $<..."
+
+$(OBJSFOLDER)%.o: parser/%.c include/parser.h $(GLOBAL_HEADERS)
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo "Compiling $<..."
 
 re: fclean all
 

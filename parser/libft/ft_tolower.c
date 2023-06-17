@@ -1,27 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_lstclear.c                                      :+:      :+:    :+:   */
+/*   ft_tolower.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/10/18 00:00:46 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/17 15:38:36 by ylyoussf         ###   ########.fr       */
+/*   Created: 2022/10/08 18:28:28 by ylyoussf          #+#    #+#             */
+/*   Updated: 2022/10/21 19:50:48 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/parser.h"
-
-void	ft_lstclear(t_list **lst, void (*del)(void *))
+int	ft_tolower(int c)
 {
-	t_list	*to_del;
-
-	if (!lst || !del || !(*lst))
-		return ;
-	while (*lst)
-	{
-		to_del = *lst;
-		*lst = (*lst)->next;
-		ft_lstdelone(to_del, del);
-	}
+	if (c >= 'A' && c <= 'Z')
+		return (c + 32);
+	return (c);
 }

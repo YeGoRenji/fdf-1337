@@ -9,6 +9,7 @@
 		"math.h": "c",
 		"stdint.h": "c",
 		"structs.h": "c",
-		"get_next_line.h": "c"
+		"get_next_line.h": "c",
+		"algorithm": "c"
 	}
 }

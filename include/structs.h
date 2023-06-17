@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/16 18:24:41 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/16 18:26:40 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/17 18:28:44 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 # include <stdlib.h>
 # include <stdint.h>
 # include <stdio.h>
+# include <unistd.h>
 # include <fcntl.h>
 # include <math.h>
 
@@ -29,6 +30,7 @@ typedef struct s_vect3d
 	double x;
 	double y;
 	double z;
+	uint32_t	color;
 }				t_vect3d;
 
 typedef struct s_color
@@ -50,20 +52,23 @@ typedef struct s_vars {
 	void		*mlx;
 	void		*win;
 	t_data		*img;
-	t_point		line[2];
-	t_vect3d	points[8];
 	t_vect3d	**pts;
 	int			rows;
 	int			cols;
+	// Translation
+	double		x;
+	double		y;
 	double		distance; // z distance
-	// rotation angles
-	double	alpha;
-	double	beta;
-	double	gamma;
+	// Rotation
+	double		alpha;
+	double		beta;
+	double		gamma;
 	// Weak prespective
-	double	fov;
+	double		fov;
 	// Scale
-	int scale;
+	int			scale;
+	// feature
+	int			is_color_gradient;
 }				t_vars;
 
 #endif

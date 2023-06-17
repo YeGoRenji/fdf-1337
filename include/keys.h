@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 03:24:26 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/16 13:48:58 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/17 20:17:30 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,9 @@
 #  define KEY_RIGHT 124
 #  define KEY_DOWN 125
 #  define KEY_UP 126
+#  define KEY_ESC 53
+#  define SCROLL_UP 4
+#  define SCROLL_DOWN 5
 # endif
 
 #endif

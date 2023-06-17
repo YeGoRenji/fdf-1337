@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include <mlx.h>
-#include "gnl/get_next_line.h"
 #include "include/parser.h"
 #include "include/keys.h"
 #include "include/maths.h"
@@ -23,8 +22,6 @@
 #define TAU 6.2831853071795864
 #define AA 0
 #define AA_SHADE 150
-
-
 
 void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 {
@@ -50,13 +47,6 @@ void	swap_pts(t_point **pt1, t_point **pt2)
 	*pt1 = *pt2;
 	*pt2 = tmp;
 }
-
-// A*(1-t) + t*B = p
-// A - At + tB = p
-// A + t (B - A) = p
-// (A - p) / (A - B) = t
-
-
 
 void	draw_line_2(t_data* img_ptr, t_point pt1, t_point pt2, uint32_t color)
 {
@@ -191,38 +181,12 @@ void	clear_img(t_data *img)
 int	close_win(t_vars *vars)
 {
 	puts("Closed Window !");
+	mlx_destroy_image(vars->mlx, vars->img->img);
 	mlx_destroy_window(vars->mlx, vars->win);
 	// ! free stuff ?
-	system("leaks ./fdf");
+	system("leaks fdf");
 	exit(0);
 }
-
-// int	lineHandler(int keycode, t_vars *vars)
-// {
-// 	// printf("Clicked %d\n", keycode);
-// 	if (keycode == KEY_Q)
-// 		vars->line[0].x -= 1;
-// 	else if (keycode == KEY_A)
-// 		vars->line[0].y -= 1;
-// 	else if (keycode == KEY_W)
-// 		vars->line[0].x += 1;
-// 	else if (keycode == KEY_S)
-// 		vars->line[0].y += 1;
-// 	else if (keycode == KEY_E)
-// 		vars->line[1].x -= 1;
-// 	else if (keycode == KEY_D)
-// 		vars->line[1].y -= 1;
-// 	else if (keycode == KEY_R)
-// 		vars->line[1].x += 1;
-// 	else if (keycode == KEY_F)
-// 		vars->line[1].y += 1;
-// 	clear_img(vars->img);
-// 	draw_line(vars->img,
-// 		vars->line[0].x, vars->line[0].y,
-// 		vars->line[1].x, vars->line[1].y, 0xFFFFFF);
-// 	mlx_put_image_to_window(vars->mlx, vars->win, vars->img->img, 0, 0);
-// 	return (0);
-// }
 
 void	draw_point(t_vars *vars, t_point p)
 {
@@ -248,49 +212,31 @@ double	rad_to_deg(double angle)
 
 t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 {
-	t_point *p = malloc(sizeof(t_point));
+	t_point		*p;
+	t_vect3d	result_pt;
+	double		prespect;
 
-	// double x = point3d.x;
-	// double y = point3d.y;
-	// double z = point3d.z;
-	t_vect3d result_pt;
-
-	result_pt = (t_vect3d){point3d.x, point3d.y, point3d.z};
-
+	result_pt = (t_vect3d){point3d.x, point3d.y, point3d.z, point3d.color};
 	apply_rot_x(vars->alpha, &result_pt);
 	apply_rot_y(vars->beta, &result_pt);
 	apply_rot_z(vars->gamma, &result_pt);
-	// // Rotation around X
-	// // x = x
-	// double old = y;
-	// y = y * cos(vars->gamma) - z * sin(vars->gamma);
-	// z = old * sin(vars->gamma) + z * cos(vars->gamma);
 
-	// // Rotation around Y
-	// old = x;
-	// x = x * cos(vars->beta) + z * sin(vars->beta);
-	// // y = y
-	// z =  - old * sin(vars->beta) + z * cos(vars->beta);
-
-	// // Rotation around Z
-	// old = x;
-	// x = x * cos(vars->alpha) - y * sin(vars->alpha);
-	// y = old * sin(vars->alpha) + y * cos(vars->alpha);
-	// // z = z;
-
-
-	double prespect = check_zero(vars->fov * (1 - (result_pt.z - vars->distance)));
+	prespect = check_zero(vars->fov * (1 - (result_pt.z - vars->distance)));
 	if (prespect < 0)
-	{
-		free(p);
 		return (NULL);
-	}
 
-	// ! need to understand more why it works ! :)
-	// TODO : Add more vars distance not used
-	p->x = (WINDOW_WIDTH / 2) + vars->scale * result_pt.x / prespect;
-	p->y = (WINDOW_HEIGHT / 2) + vars->scale * result_pt.y / prespect;
-	p->color = hueToRGB(10 * point3d.z);
+	p = malloc(sizeof(t_point));
+	if (!p)
+	{
+		perror("fdf");
+		exit(-1);
+	}
+	p->x = (WINDOW_WIDTH / 2) + vars->scale * (result_pt.x + vars->x) / prespect;
+	p->y = (WINDOW_HEIGHT / 2) + vars->scale * (result_pt.y - vars->y) / prespect;
+	if (vars->is_color_gradient)
+		p->color = hueToRGB(10 * point3d.z);
+	else
+		p->color = point3d.color;
 	return (p);
 }
 
@@ -306,7 +252,8 @@ void	print_info(t_vars *vars)
 {
 	printf("Dimensions: (%d, %d)\n", vars->rows, vars->cols);
 	printf("Rotation: (%.2f, %.2f, %.2f)\n", rad_to_deg(vars->alpha), rad_to_deg(vars->beta), rad_to_deg(vars->gamma));
-	printf("Scale: %d, Dist: %f, Fov: %f\n", vars->scale, vars->distance, vars->fov);
+	printf("Position: (%.2f, %.2f, %.2f)\n", vars->x, vars->y, vars->distance);
+	printf("Scale: %d, Fov: %f\n", vars->scale, vars->fov);
 }
 
 
@@ -315,6 +262,7 @@ void redraw(t_vars *vars)
 	int	i;
 	int	j;
 
+	clear_img(vars->img);
 	// clear_console();
 	// print_info(vars);
 	i = 0;
@@ -341,14 +289,6 @@ void redraw(t_vars *vars)
 				continue ;
 			}
 
-			// if (i != vars->rows - 1)
-			// 	draw_line(vars->img, p1->x, p1->y, p2->x, p2->y,  lerp(0xFFFFFF, 0xFF5C00, vars->pts[(i + 1) % vars->rows][j].z / 10));
-			// if (j != vars->cols - 1)
-			// 	draw_line(vars->img, p1->x, p1->y, p3->x, p3->y, lerp(0xFFFFFF, 0xFF5C00, vars->pts[i][(j + 1) % vars->cols].z / 10));
-			// if (i < vars->rows - 1)
-			// 	draw_line_2(vars->img, (t_point){p1->x, p1->y, 0}, *p2, lerp(0xFFFFFF, 0xFF5C00, vars->pts[(i + 1) % vars->rows][j].z / 10));
-			// if (j < vars->cols - 1)
-			// 	draw_line_2(vars->img, (t_point){p1->x, p1->y, 0}, *p3, lerp(0xFFFFFF, 0xFF5C00, vars->pts[i][(j + 1) % vars->cols].z / 10));
 			if (i < vars->rows - 1)
 				draw_line_2(vars->img, (t_point){p1->x, p1->y, p1->color}, *p2, hueToRGB(360 * vars->pts[(i + 1) % vars->rows][j].z / 10));
 			if (j < vars->cols - 1)
@@ -360,6 +300,7 @@ void redraw(t_vars *vars)
 		}
 		++i;
 	}
+	mlx_put_image_to_window(vars->mlx, vars->win, vars->img->img, 0, 0);
 }
 
 
@@ -386,10 +327,18 @@ int	rotation_handler(int keycode, t_vars *vars)
 		vars->fov += 0.5;
 	else if (keycode == KEY_G)
 		vars->fov -= 0.5;
-	else if (keycode == KEY_Z)
-		vars->scale += 1;
-	else if (keycode == KEY_X)
-		vars->scale -= 1;
+	else if (keycode == KEY_UP)
+		vars->y += 1;
+	else if (keycode == KEY_DOWN)
+		vars->y -= 1;
+	else if (keycode == KEY_RIGHT)
+		vars->x += 1;
+	else if (keycode == KEY_LEFT)
+		vars->x -= 1;
+	else if (keycode == KEY_F)
+		vars->is_color_gradient = !vars->is_color_gradient;
+	else if (keycode == KEY_ESC)
+		return (close_win(vars));
 	else if (keycode == KEY_R)
 	{
 		vars->alpha = 0;
@@ -400,145 +349,35 @@ int	rotation_handler(int keycode, t_vars *vars)
 		return (0);
 	if (vars->fov < 0)
 		vars->fov = 0;
-	clear_img(vars->img);
 	redraw(vars);
-	// for (int i = 0; i < 4; i++)
-	// {
-	// 	t_point *a = f3d_to_2d(vars, vars->points[i]);
-	// 	t_point *b = f3d_to_2d(vars, vars->points[(i + 1) % 4]);
-	// 	draw_line(vars->img, a->x, a->y, b->x, b->y, 0xFF5C00);
-
-	// 	a = f3d_to_2d(vars, vars->points[4 + i]);
-	// 	b = f3d_to_2d(vars, vars->points[4 + (i + 1) % 4]);
-	// 	draw_line(vars->img, a->x, a->y, b->x, b->y, 0xFF5C00);
-
-    // 	a = f3d_to_2d(vars, vars->points[i]);
-	// 	b = f3d_to_2d(vars, vars->points[4 + i]);
-	// 	draw_line(vars->img, a->x, a->y, b->x, b->y, 0xFF5C00);
-	// }
-
-	mlx_put_image_to_window(vars->mlx, vars->win, vars->img->img, 0, 0);
 	return (0);
 }
 
-void printSPLIT(char ** s)
-{
-    int i = 0;
 
-	if (!s)
-	{
-		puts("(null)");
-		return;
-	}
-    printf("<| ");
-    while (s[i])
-    {
-		printf("%s", s[i]);
-        printf(s[i+1]  ? " | " : " |");
-        i++;
-    }
-    printf(">\n");
+int	zoom_handler(int keycode, int x, int y, t_vars *vars)
+{
+	printf("Clicked %d\n", keycode);
+	if (keycode == SCROLL_UP)
+		vars->scale += 5;
+	else if (keycode == SCROLL_DOWN)
+		vars->scale -= 5;
+	(void)x;
+	(void)y;
+	if (vars->scale < 1)
+		vars->scale = 1;
+	redraw(vars);
+	return (0);
 }
 
-int	split_len(char **split)
-{
-	int	len;
-
-	len = 0;
-	while (*split++)
-		len++;
-	return (len);
-}
-
-void	free_split(void *split)
-{
-	char	**head;
-	int		i;
-
-	head = (char **)split;
-	while (head)
-	{
-		i = 0;
-		while (head[i])
-		{
-			free(head[i]);
-			i++;
-		}
-		head++;
-	}
-	free(split);
-}
-
-void parse_map(char *file_path, t_vars *vars)
-{
-	int		fd;
-	char	*str = "SALAM";
-	char	**split;
-	t_list	*map;
-	// t_list	*next;
-
-	vars->cols = -1;
-	vars->rows = 0;
-	map = NULL;
-	fd = open(file_path, O_RDONLY);
-	if (fd == -1)
-	{
-		perror("fdf");
-		exit(-1);
-	}
-
-	// Split things
-	while (str)
-	{
-		str = get_next_line(fd);
-		if (str)
-		{
-			vars->rows++;
-			if (ft_strchr(str, '\n'))
-				str[ft_strlen(str) - 1] = '\0';
-		}
-		if (vars->cols == -1)
-			vars->cols = count_words(str, ' ');
-		split = ft_split(str, ' ');
-		if (split)
-			ft_lstadd_back(&map, ft_lstnew(split));
-		free(str);
-		// printSPLIT(ft_split(str, ' '));
-	}
-	vars->pts = malloc(vars->rows * sizeof(t_vect3d*));
-
-	int i = 0;
-	int j;
-	// Actual parsing
-	while (map)
-	{
-		j = 0;
-		vars->pts[i] = malloc(vars->cols * sizeof(t_vect3d));
-		split = (char **)map->content;
-		while (j < vars->cols)
-		{
-			vars->pts[i][j] = (t_vect3d){j - vars->cols / 2, i - vars->rows / 2, ft_atoi(split[j])};
-			j++;
-		}
-		i++;
-		map = map->next;
-	}
-
-	ft_lstclear(&map, free_split);
-}
 
 int main(int argc, char** argv)
 {
 	t_vars	vars;
 	t_data	img_data;
 
-
-	if (argc > 2)
-	{
-		exit(write(2, "use: ./fdf [map_path]", 21));
-	}
-	if (argc == 2)
-		parse_map(argv[1], &vars);
+	if (argc != 2)
+		exit(write(2, "Usage: ./fdf <file_name>\n", 25));
+	handle_map(argv[1], &vars);
 
 	vars.alpha = 0;
 	vars.beta = 0;
@@ -547,8 +386,9 @@ int main(int argc, char** argv)
 	vars.img = &img_data;
 	vars.fov = 0.5;
 	vars.scale = 200;
-	// vars.distance = (vars.rows > vars.cols ? vars.rows : vars.cols) / (2 * vars.fov);
-	vars.distance = 200;
+	vars.distance = (vars.rows > vars.cols ? vars.rows : vars.cols) / (4 * vars.fov);
+	vars.is_color_gradient = 0;
+	// vars.distance = 200;
 	// vars.line[0] = (t_point){WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
 	// vars.line[1] = (t_point){3*WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
 	vars.mlx = mlx_init();
@@ -611,10 +451,9 @@ int main(int argc, char** argv)
 	// }
 
 
-	mlx_put_image_to_window(vars.mlx, vars.win, img_data.img, 0, 0);
 	mlx_hook(vars.win, 17, 0, close_win, &vars);
+	mlx_mouse_hook(vars.win, zoom_handler, &vars);
 	mlx_hook(vars.win, 2, X_MAX, rotation_handler, &vars);
-
 	mlx_loop(vars.mlx);
 	//free(mlx);
 }
