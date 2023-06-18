@@ -6,10 +6,9 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 03:24:26 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/17 20:17:30 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/18 03:06:25 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #ifndef KEYS_H
 # define KEYS_H
@@ -31,6 +30,13 @@
 #  define KEY_H XK_h
 #  define KEY_Z XK_z
 #  define KEY_X XK_x
+#  define KEY_LEFT XK_Left
+#  define KEY_RIGHT XK_Right
+#  define KEY_DOWN XK_Down
+#  define KEY_UP XK_Up
+#  define KEY_ESC XK_Escape
+#  define SCROLL_UP 4
+#  define SCROLL_DOWN 5
 # else
 #  define X_MAX 0
 #  define KEY_Q 12

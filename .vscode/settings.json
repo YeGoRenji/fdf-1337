@@ -10,6 +10,8 @@
 		"stdint.h": "c",
 		"structs.h": "c",
 		"get_next_line.h": "c",
-		"algorithm": "c"
+		"algorithm": "c",
+		"keysym.h": "c",
+		"keysymdef.h": "c"
 	}
 }

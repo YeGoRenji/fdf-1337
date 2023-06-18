@@ -184,8 +184,7 @@ int	close_win(t_vars *vars)
 	mlx_destroy_image(vars->mlx, vars->img->img);
 	mlx_destroy_window(vars->mlx, vars->win);
 	// ! free stuff ?
-	system("leaks fdf");
-	exit(0);
+	exit(system("leaks fdf"));
 }
 
 void	draw_point(t_vars *vars, t_point p)
@@ -234,7 +233,7 @@ t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 	p->x = (WINDOW_WIDTH / 2) + vars->scale * (result_pt.x + vars->x) / prespect;
 	p->y = (WINDOW_HEIGHT / 2) + vars->scale * (result_pt.y - vars->y) / prespect;
 	if (vars->is_color_gradient)
-		p->color = hueToRGB(10 * point3d.z);
+		p->color = hue_to_rgb(10 * point3d.z);
 	else
 		p->color = point3d.color;
 	return (p);
@@ -263,8 +262,8 @@ void redraw(t_vars *vars)
 	int	j;
 
 	clear_img(vars->img);
-	// clear_console();
-	// print_info(vars);
+	clear_console();
+	print_info(vars);
 	i = 0;
 	while (i < vars->rows)
 	{
@@ -290,9 +289,9 @@ void redraw(t_vars *vars)
 			}
 
 			if (i < vars->rows - 1)
-				draw_line_2(vars->img, (t_point){p1->x, p1->y, p1->color}, *p2, hueToRGB(360 * vars->pts[(i + 1) % vars->rows][j].z / 10));
+				draw_line_2(vars->img, (t_point){p1->x, p1->y, p1->color}, *p2, hue_to_rgb(360 * vars->pts[(i + 1) % vars->rows][j].z / 10));
 			if (j < vars->cols - 1)
-				draw_line_2(vars->img, (t_point){p1->x, p1->y, p1->color}, *p3, hueToRGB(360 * vars->pts[i][(j + 1) % vars->cols].z / 10));
+				draw_line_2(vars->img, (t_point){p1->x, p1->y, p1->color}, *p3, hue_to_rgb(360 * vars->pts[i][(j + 1) % vars->cols].z / 10));
 			free(p1);
 			free(p2);
 			free(p3);
@@ -327,6 +326,8 @@ int	rotation_handler(int keycode, t_vars *vars)
 		vars->fov += 0.5;
 	else if (keycode == KEY_G)
 		vars->fov -= 0.5;
+	else if (keycode == KEY_F)
+		vars->is_color_gradient = !vars->is_color_gradient;
 	else if (keycode == KEY_UP)
 		vars->y += 1;
 	else if (keycode == KEY_DOWN)
@@ -335,8 +336,6 @@ int	rotation_handler(int keycode, t_vars *vars)
 		vars->x += 1;
 	else if (keycode == KEY_LEFT)
 		vars->x -= 1;
-	else if (keycode == KEY_F)
-		vars->is_color_gradient = !vars->is_color_gradient;
 	else if (keycode == KEY_ESC)
 		return (close_win(vars));
 	else if (keycode == KEY_R)
@@ -401,12 +400,12 @@ int main(int argc, char** argv)
 	// WINDOW_WIDTH, WINDOW_HEIGHT/2  + 50,
 	// 0xFF5C00);
 
-	// hueToRGB(120);
+	// hue_to_rgb(120);
 
 	// int j = 0;
 	// while (j <= 360)
 	// {
-	// 	printf("(%3d) -> %#.6x\n",j, hueToRGB(j));
+	// 	printf("(%3d) -> %#.6x\n",j, hue_to_rgb(j));
 	// 	j++;
 	// }
 
@@ -420,7 +419,7 @@ int main(int argc, char** argv)
 	// 	draw_line(&img_data, WINDOW_WIDTH/2, WINDOW_HEIGHT/2,
 	// 	WINDOW_WIDTH/2 + Amp * cos((double)i/(double)cycles * (TAU)),
 	// 	WINDOW_HEIGHT/2 + Amp * sin((double)i/(double)cycles * (TAU)),
-	// 	hueToRGB((float)i * 360 / cycles));
+	// 	hue_to_rgb((float)i * 360 / cycles));
 	// 	i++;
 	// }
 

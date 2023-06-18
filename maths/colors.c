@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/15 18:19:04 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/17 20:42:51 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/18 03:09:43 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ uint32_t	f(uint16_t x, uint16_t a)
 		return (0);
 }
 
-uint32_t	hueToRGB(uint16_t hue)
+uint32_t	hue_to_rgb(uint16_t hue)
 {
 	uint32_t	r;
 	uint32_t	g;
@@ -41,12 +41,12 @@ uint32_t	hueToRGB(uint16_t hue)
 uint32_t	get_shade(uint32_t col, float shade)
 {
 	t_color	color;
+
 	color = (t_color){
 		(col & 0xFF0000) >> 16,
 		(col & 0x00FF00) >> 8,
 		(col & 0x0000FF) >> 0
 	};
-
 	if (shade < 0)
 		shade = 0;
 	if (shade > 1)
