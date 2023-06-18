@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/16 18:24:41 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/18 14:30:57 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/18 17:56:58 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,8 @@
 # include <math.h>
 
 typedef struct s_point {
-	int			x;
-	int			y;
+	int16_t		x;
+	int16_t		y;
 	uint32_t	color;
 }				t_point;
 

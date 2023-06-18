@@ -6,15 +6,15 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/18 14:35:50 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/18 15:11:17 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/18 17:38:05 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/maths.h"
 
-void	ft_swap(int *a, int *b)
+void	ft_swap(int16_t *a, int16_t *b)
 {
-	int	tmp;
+	int16_t	tmp;
 
 	tmp  = *a;
 	*a = *b;

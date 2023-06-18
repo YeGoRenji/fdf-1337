@@ -58,6 +58,11 @@ void	draw_line(t_data* img_ptr, t_point pt1, t_point pt2)
 	int	dir_y = (pt2.y - pt1.y > 0) ? 1 : -1;
 	int	dir_x = (pt2.x - pt1.x > 0) ? 1 : -1;
 	int	y_put = pt1.y;
+	if (pt1.x == INT16_MIN || pt2.x == INT16_MIN
+		|| pt1.y == INT16_MIN || pt2.y == INT16_MIN)
+	{
+		puts("WTF!");
+	}
 
 	float percent = 1;
 	int x = pt1.x;

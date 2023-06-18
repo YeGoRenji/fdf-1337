@@ -1,6 +1,6 @@
 NAME = fdf
 
-CFLAGS = -Wall -Wextra -Werror -O3 #-Ofast #-fsanitize=address #-g
+CFLAGS = -Wall -Wextra -Werror -O3 -g#-Ofast #-fsanitize=address #-g
 
 OBJSFOLDER = objs/
 
