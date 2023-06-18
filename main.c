@@ -19,61 +19,49 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 #define ABS(x) ((x) >= 0 ? (x) : -(x))
-#define TAU 6.2831853071795864
 #define AA 0
 #define AA_SHADE 150
 
 void	my_mlx_pixel_put(t_data *data, int x, int y, int color)
 {
 	char	*dst;
+
 	if (!(0 <= x && x < WINDOW_WIDTH))
-		return;
+		return ;
 	if (!(0 <= y && y < WINDOW_HEIGHT))
-		return;
+		return ;
 	dst = data->addr + (y * data->line_length + x * (data->bits_per_pixel / 8));
-	*(unsigned int*)dst = color;
+	*(unsigned int *)dst = color;
 }
 
-void	swap_int(int *a, int *b)
-{
-	int tmp = *a;
-	*a = *b;
-	*b = tmp;
-}
 
-void	swap_pts(t_point **pt1, t_point **pt2)
-{
-	t_point *tmp = *pt1;
-	*pt1 = *pt2;
-	*pt2 = tmp;
-}
+// y = ax + b
+// y2 = ax2 + b
+// y1 = ax1 + b
+// y2-y1 = a (x2 - x1)
+// y1 = x1 * (y2 - y1)/(x2 - x1) + b
+// y1x2 - x1y2 / (x2 - x1)=  + b
 
-void	draw_line_2(t_data* img_ptr, t_point pt1, t_point pt2, uint32_t color)
+
+void	draw_line(t_data* img_ptr, t_point pt1, t_point pt2)
 {
-	int y_x_flip = 0;
+	int			y_x_flip = 0;
+	uint32_t	color;
 
 	// This is where a line shall be born !
 	if (ABS(pt2.y - pt1.y) > ABS(pt2.x - pt1.x))
 	{
 		y_x_flip = 1;
-		// swap_pts(&pt1, &pt2);
-		// swap_int(&x1, &y1);
-		// swap_int(&x2, &y2);
-
-		swap_int(&pt1.x, &pt1.y);
-		swap_int(&pt2.x, &pt2.y);
+		ft_swap(&pt1.x, &pt1.y);
+		ft_swap(&pt2.x, &pt2.y);
 	}
-
 	int	dir_y = (pt2.y - pt1.y > 0) ? 1 : -1;
 	int	dir_x = (pt2.x - pt1.x > 0) ? 1 : -1;
 	int	y_put = pt1.y;
 
 	float percent = 1;
-	// pt1.x = clamp(pt1.x, -1, WINDOW_WIDTH);
-	// pt2.x = clamp(pt2.x, -1, WINDOW_WIDTH);
-	// pt1.y = clamp(pt1.y, -1, WINDOW_HEIGHT);
-	// pt2.y = clamp(pt2.y, -1, WINDOW_HEIGHT);
-	for (int x = pt1.x; x * dir_x <= pt2.x * dir_x; x += dir_x)
+	int x = pt1.x;
+	for (; x * dir_x <= pt2.x * dir_x; x += dir_x)
 	{
 		int err = (pt2.y * (x - pt1.x) - pt1.y * (x - pt2.x)) - y_put * (pt2.x - pt1.x);
 		color = lerp_color(pt1.color, pt2.color, inv_lerp(pt1.x, pt2.x, x));
@@ -105,58 +93,6 @@ void	draw_line_2(t_data* img_ptr, t_point pt1, t_point pt2, uint32_t color)
 	}
 }
 
-// void	draw_line(t_data* img_ptr, int x1, int y1, int x2, int y2, uint32_t color)
-// {
-// 	int y_x_flip = 0;
-
-// 	// This is where a line shall be born !
-// 	if (ABS(y2 - y1) > ABS(x2 - x1))
-// 	{
-// 		y_x_flip = 1;
-// 		swap_int(&x1, &y1);
-// 		swap_int(&x2, &y2);
-// 	}
-
-// 	int	dir_y = (y2 - y1 > 0) ? 1 : -1;
-// 	int	dir_x = (x2 - x1 > 0) ? 1 : -1;
-// 	int	y_put = y1;
-
-// 	float percent = 1;
-// 	// x1 = clamp(x1, -1, WINDOW_WIDTH);
-// 	// x2 = clamp(x2, -1, WINDOW_WIDTH);
-// 	// y1 = clamp(y1, -1, WINDOW_HEIGHT);
-// 	// y2 = clamp(y2, -1, WINDOW_HEIGHT);
-// 	for (int x = x1; x * dir_x <= x2 * dir_x; x += dir_x)
-// 	{
-// 		int err = (y2 * (x - x1) - y1 * (x - x2)) - y_put * (x2 - x1);
-// 		if (AA)
-// 		{
-// 			// ! You can make this better
-// 			if (y_x_flip)
-// 			{
-// 				my_mlx_pixel_put(img_ptr, y_put - dir_y, x - dir_x, get_shade(color, percent - 0.2));
-// 				my_mlx_pixel_put(img_ptr, y_put + dir_y, x - dir_x, get_shade(color, 1 - percent));
-// 			}
-// 			else
-// 			{
-// 				my_mlx_pixel_put(img_ptr, x - dir_x, y_put - dir_y, get_shade(color, percent - 0.2));
-// 				my_mlx_pixel_put(img_ptr, x - dir_x, y_put + dir_y, get_shade(color, 1 - percent));
-// 			}
-// 		}
-// 		if (ABS(err) >= 0.5 * ABS(x2 - x1))
-// 		{
-// 			percent = 1;
-// 			y_put += dir_y;
-// 		}
-// 		percent -= 0.05;
-// 		if (percent < 0) percent = 0;
-// 		if (y_x_flip)
-// 			my_mlx_pixel_put(img_ptr, y_put, x, color);
-// 		else
-// 			my_mlx_pixel_put(img_ptr, x, y_put, color);
-// 	}
-// }
-
 
 void	clear_img(t_data *img)
 {
@@ -187,41 +123,20 @@ int	close_win(t_vars *vars)
 	exit(system("leaks fdf"));
 }
 
-void	draw_point(t_vars *vars, t_point p)
-{
-	my_mlx_pixel_put(vars->img, p.x, p.y, 0xFFFFFF);
-	my_mlx_pixel_put(vars->img, p.x + 1, p.y, 0xFFFFFF);
-	my_mlx_pixel_put(vars->img, p.x - 1, p.y, 0xFFFFFF);
-	my_mlx_pixel_put(vars->img, p.x, p.y + 1, 0xFFFFFF);
-	my_mlx_pixel_put(vars->img, p.x, p.y - 1, 0xFFFFFF);
-}
-
-float	check_zero(float arith)
-{
-	if (arith == 0)
-		return (1);
-	return (arith);
-}
-
-double	rad_to_deg(double angle)
-{
-	return (mod(angle * 360 / TAU, 360));
-}
-
 
 t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 {
 	t_point		*p;
 	t_vect3d	result_pt;
-	double		prespect;
+	double		pres;
 
 	result_pt = (t_vect3d){point3d.x, point3d.y, point3d.z, point3d.color};
 	apply_rot_x(vars->alpha, &result_pt);
 	apply_rot_y(vars->beta, &result_pt);
 	apply_rot_z(vars->gamma, &result_pt);
 
-	prespect = check_zero(vars->fov * (1 - (result_pt.z - vars->distance)));
-	if (prespect < 0)
+	pres = check_zero(vars->is_pres * (vars->dist - vars->fov * result_pt.z));
+	if (pres <= 0)
 		return (NULL);
 
 	p = malloc(sizeof(t_point));
@@ -230,18 +145,19 @@ t_point	*f3d_to_2d(t_vars *vars, t_vect3d point3d)
 		perror("fdf");
 		exit(-1);
 	}
-	p->x = (WINDOW_WIDTH / 2) + vars->scale * (result_pt.x + vars->x) / prespect;
-	p->y = (WINDOW_HEIGHT / 2) + vars->scale * (result_pt.y - vars->y) / prespect;
+	p->x = (WINDOW_WIDTH / 2) + vars->scale * (result_pt.x + vars->x) / pres;
+	p->y = (WINDOW_HEIGHT / 2) + vars->scale * (result_pt.y - vars->y) / pres;
+	p->color = point3d.color;
 	if (vars->is_color_gradient)
-		p->color = hue_to_rgb(10 * point3d.z);
-	else
-		p->color = point3d.color;
+		p->color = hue_to_rgb(320 * inv_lerp(vars->min, vars->max, point3d.z));
 	return (p);
 }
 
-void	clear_console()
+void	clear_console(void)
 {
-	int a = write(1, "\e[1;1H\e[2J", 10);
+	int	a;
+
+	a = write(1, "\e[1;1H\e[2J", 10);
 	(void)a;
 }
 
@@ -251,8 +167,9 @@ void	print_info(t_vars *vars)
 {
 	printf("Dimensions: (%d, %d)\n", vars->rows, vars->cols);
 	printf("Rotation: (%.2f, %.2f, %.2f)\n", rad_to_deg(vars->alpha), rad_to_deg(vars->beta), rad_to_deg(vars->gamma));
-	printf("Position: (%.2f, %.2f, %.2f)\n", vars->x, vars->y, vars->distance);
+	printf("Position: (%.2f, %.2f, %.2f)\n", vars->x, vars->y, vars->dist);
 	printf("Scale: %d, Fov: %f\n", vars->scale, vars->fov);
+	printf("Max : %d, Min: %d\n", vars->max, vars->min);
 }
 
 
@@ -289,9 +206,9 @@ void redraw(t_vars *vars)
 			}
 
 			if (i < vars->rows - 1)
-				draw_line_2(vars->img, (t_point){p1->x, p1->y, p1->color}, *p2, hue_to_rgb(360 * vars->pts[(i + 1) % vars->rows][j].z / 10));
+				draw_line(vars->img, (t_point){p1->x, p1->y, p1->color}, (t_point){p2->x, p2->y, p2->color});
 			if (j < vars->cols - 1)
-				draw_line_2(vars->img, (t_point){p1->x, p1->y, p1->color}, *p3, hue_to_rgb(360 * vars->pts[i][(j + 1) % vars->cols].z / 10));
+				draw_line(vars->img, (t_point){p1->x, p1->y, p1->color}, (t_point){p3->x, p3->y, p3->color});
 			free(p1);
 			free(p2);
 			free(p3);
@@ -319,15 +236,17 @@ int	rotation_handler(int keycode, t_vars *vars)
 	else if (keycode == KEY_D)
 		vars->gamma -= TAU / 32;
 	else if (keycode == KEY_Y)
-		vars->distance += 0.5;
+		vars->dist += 0.5;
 	else if (keycode == KEY_H)
-		vars->distance -= 0.5;
+		vars->dist -= 0.5;
 	else if (keycode == KEY_T)
 		vars->fov += 0.5;
 	else if (keycode == KEY_G)
 		vars->fov -= 0.5;
 	else if (keycode == KEY_F)
 		vars->is_color_gradient = !vars->is_color_gradient;
+	else if (keycode == KEY_O)
+		vars->is_pres = !vars->is_pres;
 	else if (keycode == KEY_UP)
 		vars->y += 1;
 	else if (keycode == KEY_DOWN)
@@ -383,11 +302,11 @@ int main(int argc, char** argv)
 	// vars.gamma = TAU / 8;
 	vars.gamma = 0;
 	vars.img = &img_data;
-	vars.fov = 0.5;
-	vars.scale = 200;
-	vars.distance = (vars.rows > vars.cols ? vars.rows : vars.cols) / (4 * vars.fov);
+	vars.fov = 0;
+	vars.is_pres = 0;
+	vars.scale = min(WINDOW_WIDTH / vars.cols, WINDOW_HEIGHT / vars.rows);
+	vars.dist = vars.max + 5;
 	vars.is_color_gradient = 0;
-	// vars.distance = 200;
 	// vars.line[0] = (t_point){WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
 	// vars.line[1] = (t_point){3*WINDOW_WIDTH/4, WINDOW_HEIGHT/2};
 	vars.mlx = mlx_init();
@@ -452,7 +371,7 @@ int main(int argc, char** argv)
 
 	mlx_hook(vars.win, 17, 0, close_win, &vars);
 	mlx_mouse_hook(vars.win, zoom_handler, &vars);
-	mlx_hook(vars.win, 2, X_MAX, rotation_handler, &vars);
+	mlx_hook(vars.win, 2, X_MASK, rotation_handler, &vars);
 	mlx_loop(vars.mlx);
 	//free(mlx);
 }

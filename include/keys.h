@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 03:24:26 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/18 03:06:25 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/18 14:25:15 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define KEYS_H
 
 # ifdef __linux__
-#  define X_MAX 1L<<0
+#  define X_MASK 1L<<0
 #  include <X11/keysym.h>
 #  define KEY_Q XK_q
 #  define KEY_A XK_a
@@ -30,6 +30,7 @@
 #  define KEY_H XK_h
 #  define KEY_Z XK_z
 #  define KEY_X XK_x
+#  define KEY_O XK_o
 #  define KEY_LEFT XK_Left
 #  define KEY_RIGHT XK_Right
 #  define KEY_DOWN XK_Down
@@ -38,7 +39,7 @@
 #  define SCROLL_UP 4
 #  define SCROLL_DOWN 5
 # else
-#  define X_MAX 0
+#  define X_MASK 0
 #  define KEY_Q 12
 #  define KEY_A 0
 #  define KEY_W 13
@@ -53,6 +54,7 @@
 #  define KEY_H 4
 #  define KEY_Z 6
 #  define KEY_X 7
+#  define KEY_O 31
 #  define KEY_LEFT 123
 #  define KEY_RIGHT 124
 #  define KEY_DOWN 125

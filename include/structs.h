@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/16 18:24:41 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/17 18:28:44 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/18 14:30:57 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ typedef struct s_vars {
 	// Translation
 	double		x;
 	double		y;
-	double		distance; // z distance
+	double		dist; // z distance
 	// Rotation
 	double		alpha;
 	double		beta;
@@ -69,6 +69,9 @@ typedef struct s_vars {
 	int			scale;
 	// feature
 	int			is_color_gradient;
+	int			max;
+	int			min;
+	int			is_pres;
 }				t_vars;
 
 #endif

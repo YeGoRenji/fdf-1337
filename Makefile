@@ -29,7 +29,8 @@ SRCS_PARSER = ft_split.c \
 
 SRCS_MATHS = maths.c \
 			 colors.c \
-			 matrix.c
+			 matrix.c \
+			 utils.c
 
 OBJS_FILES = $(SRCS_GNL:.c=.o) \
 			 $(SRCS_PARSER:.c=.o) \
@@ -64,19 +65,19 @@ $(OBJSFOLDER)%.o: %.c
 
 endif
 
-$(OBJSFOLDER)%.o: gnl/%.c gnl/get_next_line.h $(GLOBAL_HEADERS)
+$(OBJSFOLDER)%.o: src/gnl/%.c src/gnl/get_next_line.h $(GLOBAL_HEADERS)
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiling $<..."
 
-$(OBJSFOLDER)%.o: maths/%.c include/maths.h $(GLOBAL_HEADERS)
+$(OBJSFOLDER)%.o: src/maths/%.c include/maths.h $(GLOBAL_HEADERS)
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiling $<..."
 
-$(OBJSFOLDER)%.o: parser/libft/%.c include/parser.h $(GLOBAL_HEADERS)
+$(OBJSFOLDER)%.o: src/parser/libft/%.c include/parser.h $(GLOBAL_HEADERS)
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiling $<..."
 
-$(OBJSFOLDER)%.o: parser/%.c include/parser.h $(GLOBAL_HEADERS)
+$(OBJSFOLDER)%.o: src/parser/%.c include/parser.h $(GLOBAL_HEADERS)
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiling $<..."
 
