@@ -18,7 +18,6 @@
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
-#define ABS(x) ((x) >= 0 ? (x) : -(x))
 #define AA 0
 #define AA_SHADE 150
 
@@ -49,7 +48,7 @@ void	draw_line(t_data* img_ptr, t_point pt1, t_point pt2)
 	uint32_t	color;
 
 	// This is where a line shall be born !
-	if (ABS(pt2.y - pt1.y) > ABS(pt2.x - pt1.x))
+	if (ft_abs(pt2.y - pt1.y) > ft_abs(pt2.x - pt1.x))
 	{
 		y_x_flip = 1;
 		ft_swap(&pt1.x, &pt1.y);
@@ -58,11 +57,6 @@ void	draw_line(t_data* img_ptr, t_point pt1, t_point pt2)
 	int	dir_y = (pt2.y - pt1.y > 0) ? 1 : -1;
 	int	dir_x = (pt2.x - pt1.x > 0) ? 1 : -1;
 	int	y_put = pt1.y;
-	if (pt1.x == INT16_MIN || pt2.x == INT16_MIN
-		|| pt1.y == INT16_MIN || pt2.y == INT16_MIN)
-	{
-		puts("WTF!");
-	}
 
 	float percent = 1;
 	int x = pt1.x;
@@ -84,7 +78,7 @@ void	draw_line(t_data* img_ptr, t_point pt1, t_point pt2)
 				my_mlx_pixel_put(img_ptr, x - dir_x, y_put + dir_y, get_shade(color, 1 - percent));
 			}
 		}
-		if (ABS(err) >= 0.5 * ABS(pt2.x - pt1.x))
+		if (ft_abs(err) >= 0.5 * ft_abs(pt2.x - pt1.x))
 		{
 			percent = 1;
 			y_put += dir_y;
@@ -111,7 +105,8 @@ void	clear_img(t_data *img)
 		x = 0;
 		while (x < WINDOW_WIDTH)
 		{
-			dst = img->addr + (y * img->line_length + x * (img->bits_per_pixel / 8));
+			dst = img->addr + (y * img->line_length
+					+ x * (img->bits_per_pixel / 8));
 			*(unsigned int*)dst = 0x000000;
 			++x;
 		}
@@ -180,8 +175,10 @@ void	print_info(t_vars *vars)
 
 void redraw(t_vars *vars)
 {
-	int	i;
-	int	j;
+	int			i;
+	int			j;
+	t_vect3d	vec[3];
+	t_point		*p[3];
 
 	clear_img(vars->img);
 	clear_console();
@@ -192,31 +189,28 @@ void redraw(t_vars *vars)
 		j = 0;
 		while (j < vars->cols)
 		{
-			// t_point *p = f3d_to_2d(vars, vars->pts[i][j]);
-			// draw_point(vars , *p);
-
-			t_vect3d vec1 = vars->pts[i][j];
-			t_vect3d vec2 = vars->pts[(i + 1) % vars->rows][j];
-			t_vect3d vec3 = vars->pts[i][(j + 1) % vars->cols];
-			t_point *p1 = f3d_to_2d(vars, vec1);
-			t_point *p2 = f3d_to_2d(vars, vec2);
-			t_point *p3 = f3d_to_2d(vars, vec3);
-			if (!p1 || !p2 || !p3)
+			vec[0] = vars->pts[i][j];
+			vec[1] = vars->pts[(i + 1) % vars->rows][j];
+			vec[2] = vars->pts[i][(j + 1) % vars->cols];
+			p[0] = f3d_to_2d(vars, vec[0]);
+			p[1] = f3d_to_2d(vars, vec[1]);
+			p[2] = f3d_to_2d(vars, vec[2]);
+			if (!p[0] || !p[1] || !p[2])
 			{
-				free(p1);
-				free(p2);
-				free(p3);
+				free(p[0]);
+				free(p[1]);
+				free(p[2]);
 				++j;
 				continue ;
 			}
 
 			if (i < vars->rows - 1)
-				draw_line(vars->img, (t_point){p1->x, p1->y, p1->color}, (t_point){p2->x, p2->y, p2->color});
+				draw_line(vars->img, (t_point){p[0]->x, p[0]->y, p[0]->color}, (t_point){p[1]->x, p[1]->y, p[1]->color});
 			if (j < vars->cols - 1)
-				draw_line(vars->img, (t_point){p1->x, p1->y, p1->color}, (t_point){p3->x, p3->y, p3->color});
-			free(p1);
-			free(p2);
-			free(p3);
+				draw_line(vars->img, (t_point){p[0]->x, p[0]->y, p[0]->color}, (t_point){p[2]->x, p[2]->y, p[2]->color});
+			free(p[0]);
+			free(p[1]);
+			free(p[2]);
 			++j;
 		}
 		++i;

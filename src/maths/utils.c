@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/18 14:35:50 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/18 17:38:05 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/19 01:02:04 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,4 +38,11 @@ int	min(int a, int b)
 	if (a < b)
 		return (a);
 	return (b);
+}
+
+int	ft_abs(int x)
+{
+	if (x >= 0)
+		return (x);
+	return (-x);
 }
