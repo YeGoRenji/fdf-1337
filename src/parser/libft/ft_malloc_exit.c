@@ -1,48 +1,26 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   ft_malloc_exit.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/06/18 14:35:50 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/19 15:23:57 by ylyoussf         ###   ########.fr       */
+/*   Created: 2023/06/19 14:51:00 by ylyoussf          #+#    #+#             */
+/*   Updated: 2023/06/19 15:18:08 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../include/maths.h"
+#include "../../../include/parser.h"
 
-void	ft_swap(int16_t *a, int16_t *b)
+void	*ft_malloc_exit(size_t size)
 {
-	int16_t	tmp;
+	void	*ptr;
 
-	tmp = *a;
-	*a = *b;
-	*b = tmp;
-}
-
-float	check_zero(float arith)
-{
-	if (arith == 0)
-		return (1);
-	return (arith);
-}
-
-double	rad_to_deg(double angle)
-{
-	return (mod(angle * 360 / TAU, 360));
-}
-
-int	min(int a, int b)
-{
-	if (a < b)
-		return (a);
-	return (b);
-}
-
-int	ft_abs(int x)
-{
-	if (x >= 0)
-		return (x);
-	return (-x);
+	ptr = malloc(size);
+	if (!ptr)
+	{
+		perror("fdf");
+		exit(-1);
+	}
+	return (ptr);
 }

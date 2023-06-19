@@ -10,6 +10,7 @@ SRCS_GNL = get_next_line.c \
 OS := $(shell uname -s)
 
 SRCS_PARSER = ft_split.c \
+			  ft_malloc_exit.c \
 			  ft_strlen.c \
 			  ft_tolower.c \
 			  ft_strlcpy.c \
@@ -32,9 +33,12 @@ SRCS_MATHS = maths.c \
 			 matrix.c \
 			 utils.c
 
+SRCS_DRAWING = drawing.c
+
 OBJS_FILES = $(SRCS_GNL:.c=.o) \
 			 $(SRCS_PARSER:.c=.o) \
 			 $(SRCS_MATHS:.c=.o) \
+			 $(SRCS_DRAWING:.c=.o) \
 			 main.o
 
 OBJS = $(foreach obj, $(OBJS_FILES), $(OBJSFOLDER)$(obj))
@@ -78,6 +82,10 @@ $(OBJSFOLDER)%.o: src/parser/libft/%.c include/parser.h $(GLOBAL_HEADERS)
 	@echo "Compiling $<..."
 
 $(OBJSFOLDER)%.o: src/parser/%.c include/parser.h $(GLOBAL_HEADERS)
+	@$(CC) $(CFLAGS) -c $< -o $@
+	@echo "Compiling $<..."
+
+$(OBJSFOLDER)%.o: src/drawing/%.c include/drawing.h $(GLOBAL_HEADERS)
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiling $<..."
 

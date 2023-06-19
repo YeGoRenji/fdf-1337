@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/20 20:47:08 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/17 20:25:41 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/19 15:01:51 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ typedef struct s_list
 int		ft_atoi(const char *str);
 size_t	ft_strlen(const char *s);
 int		ft_memcmp(const void *s1, const void *s2, size_t n);
+void	*ft_malloc_exit(size_t size);
 char	**ft_split(char const *s, char c);
 int		count_words(char const *s, char c);
 size_t	ft_strlcpy(char *dst, const char *src, size_t dstsize);

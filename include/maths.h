@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/15 18:08:26 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/19 01:02:20 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/19 14:48:39 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,5 +34,6 @@ float		check_zero(float arith);
 double		rad_to_deg(double angle);
 int			min(int a, int b);
 int			ft_abs(int x);
+void		set_max_min(t_vars *vars, int val);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/16 18:24:41 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/18 17:56:58 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/19 14:10:12 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,6 +72,7 @@ typedef struct s_vars {
 	int			max;
 	int			min;
 	int			is_pres;
+	int			is_aa;
 }				t_vars;
 
 #endif

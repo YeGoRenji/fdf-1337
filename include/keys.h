@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/13 03:24:26 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/18 14:25:15 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/19 13:01:23 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 #  define KEY_Z XK_z
 #  define KEY_X XK_x
 #  define KEY_O XK_o
+#  define KEY_P XK_p
 #  define KEY_LEFT XK_Left
 #  define KEY_RIGHT XK_Right
 #  define KEY_DOWN XK_Down
@@ -55,6 +56,7 @@
 #  define KEY_Z 6
 #  define KEY_X 7
 #  define KEY_O 31
+#  define KEY_P 35
 #  define KEY_LEFT 123
 #  define KEY_RIGHT 124
 #  define KEY_DOWN 125

@@ -6,33 +6,13 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/17 15:08:18 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/18 11:41:36by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/19 15:23:33 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/parser.h"
+#include "../../include/maths.h"
 #include "../gnl/get_next_line.h"
-
-// ! debugging purposes
-void	printSPLIT(char ** s)
-{
-    int i = 0;
-
-	if (!s)
-	{
-		puts("(null)");
-		return;
-	}
-    printf("<| ");
-    while (s[i])
-    {
-		printf("%s", s[i]);
-        printf(s[i+1]  ? " | " : " |");
-        i++;
-    }
-    printf(">\n");
-}
-
 
 void	free_split(void *split)
 {
@@ -60,6 +40,8 @@ void	parse_color(char *str, t_vect3d *pt)
 	if (comma_pos && ft_strlen(str) > 1)
 	{
 		split = ft_split(str, ',');
+		if (!split)
+			return (perror("fdf"), exit(-1));
 		split_len = count_words(str, ',');
 		if (split_len == 2 && ft_strlen(split[1]) > 2)
 			color = ft_atoi_base((split[1] + 2), "0123456789abcdef");
@@ -75,7 +57,6 @@ void	split_map(t_vars *vars, t_list **map, int fd)
 	char	*str;
 	char	**split;
 
-	// Split things
 	str = "";
 	while (str)
 	{
@@ -97,14 +78,6 @@ void	split_map(t_vars *vars, t_list **map, int fd)
 	}
 }
 
-void	set_max_min(t_vars *vars, int val)
-{
-	if (val > vars->max)
-		vars->max = val;
-	if (val < vars->min)
-		vars->min = val;
-}
-
 void	parse_map(t_vars *vars, t_list *map)
 {
 	int		i;
@@ -116,7 +89,7 @@ void	parse_map(t_vars *vars, t_list *map)
 	while (map)
 	{
 		j = 0;
-		vars->pts[i] = malloc(vars->cols * sizeof(t_vect3d));
+		vars->pts[i] = ft_malloc_exit(vars->cols * sizeof(t_vect3d));
 		split = (char **)map->content;
 		while (j < vars->cols)
 		{
@@ -126,7 +99,6 @@ void	parse_map(t_vars *vars, t_list *map)
 			};
 			parse_color(split[j], &vars->pts[i][j]);
 			set_max_min(vars, z);
-			// printf("Parsed point (%d, %d, %#X)\n", i, j, vars->pts[i][j].color);
 			j++;
 		}
 		i++;
@@ -146,10 +118,8 @@ void	handle_map(char *file_path, t_vars *vars)
 	fd = open(file_path, O_RDONLY);
 	if (fd < 3)
 		return (perror("fdf"), exit(-1));
-	// Spliting stuff
 	split_map(vars, &map, fd);
-	// Actual parsing
-	vars->pts = malloc(vars->rows * sizeof(t_vect3d*));
+	vars->pts = malloc(vars->rows * sizeof(t_vect3d *));
 	parse_map(vars, map);
 	ft_lstclear(&map, free_split);
 }
