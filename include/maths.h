@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/15 18:08:26 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/19 19:11:15 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/20 02:24:00 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ void		apply_rot_x(double angle, t_vect3d *p);
 void		apply_rot_y(double angle, t_vect3d *p);
 void		apply_rot_z(double angle, t_vect3d *p);
 // Utils :
-void		ft_swap(int16_t *a, int16_t *b);
+void		ft_swap(int64_t *a, int64_t *b);
 float		check_zero(float arith);
 double		rad_to_deg(double angle);
 int			min(int a, int b);

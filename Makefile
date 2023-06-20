@@ -2,6 +2,8 @@ NAME = fdf
 
 CFLAGS = -Wall -Wextra -Werror -O3 -g#-Ofast #-fsanitize=address #-g
 
+LINK_H = -I/usr/include -Imlx_linux
+
 OBJSFOLDER = objs/
 
 SRCS_GNL = get_next_line.c \
@@ -33,7 +35,10 @@ SRCS_MATHS = maths.c \
 			 matrix.c \
 			 utils.c
 
-SRCS_DRAWING = drawing.c
+SRCS_DRAWING = drawing.c \
+			   drawing_utils.c \
+			   debug.c \
+			   hooks.c
 
 OBJS_FILES = $(SRCS_GNL:.c=.o) \
 			 $(SRCS_PARSER:.c=.o) \
@@ -43,7 +48,7 @@ OBJS_FILES = $(SRCS_GNL:.c=.o) \
 
 OBJS = $(foreach obj, $(OBJS_FILES), $(OBJSFOLDER)$(obj))
 
-GLOBAL_HEADERS = include/structs.h include/keys.h
+GLOBAL_HEADERS = include/structs.h include/consts.h
 
 all: objs $(NAME)
 
@@ -70,24 +75,24 @@ $(OBJSFOLDER)%.o: %.c
 endif
 
 $(OBJSFOLDER)%.o: src/gnl/%.c src/gnl/get_next_line.h $(GLOBAL_HEADERS)
-	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiling $<..."
+	@$(CC) $(CFLAGS) $(LINK_H) -c $< -o $@
 
 $(OBJSFOLDER)%.o: src/maths/%.c include/maths.h $(GLOBAL_HEADERS)
-	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiling $<..."
+	@$(CC) $(CFLAGS) $(LINK_H) -c $< -o $@
 
 $(OBJSFOLDER)%.o: src/parser/libft/%.c include/parser.h $(GLOBAL_HEADERS)
-	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiling $<..."
+	@$(CC) $(CFLAGS) $(LINK_H) -c $< -o $@
 
 $(OBJSFOLDER)%.o: src/parser/%.c include/parser.h $(GLOBAL_HEADERS)
-	@$(CC) $(CFLAGS) -c $< -o $@
 	@echo "Compiling $<..."
+	@$(CC) $(CFLAGS) $(LINK_H) -c $< -o $@
 
-$(OBJSFOLDER)%.o: src/drawing/%.c include/drawing.h $(GLOBAL_HEADERS)
-	@$(CC) $(CFLAGS) -c $< -o $@
+$(OBJSFOLDER)%.o: src/interface/%.c include/drawing.h include/keys.h $(GLOBAL_HEADERS)
 	@echo "Compiling $<..."
+	@$(CC) $(CFLAGS) $(LINK_H) -c $< -o $@
 
 re: fclean all
 

@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/15 18:19:04 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/19 19:16:20 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/20 03:40:06 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,16 +47,16 @@ uint32_t	get_shade(uint32_t col, float shade)
 		(col & 0x00FF00) >> 8,
 		(col & 0x0000FF) >> 0
 	};
-	// uint8_t alpha = shade * 0xFF;
-	if (shade < 0)
-		shade = 0;
-	if (shade > 1)
-		shade = 1;
-	color.r *= shade;
-	color.g *= shade;
-	color.b *= shade;
-	return (color.r << 16 | color.g << 8 | color.b);
-	// return (color.r << 24 | color.g << 16 | color.b << 8 | alpha);
+	uint8_t alpha = (1 - shade) * 0xFF;
+	// if (shade < 0)
+	// 	shade = 0;
+	// if (shade > 1)
+	// 	shade = 1;
+	// color.r *= shade;
+	// color.g *= shade;
+	// color.b *= shade;
+	// return (color.r << 16 | color.g << 8 | color.b);
+	return (alpha << 24 | color.r << 16 | color.g << 8 | color.b);
 }
 
 uint32_t	lerp_color(uint32_t c1, uint32_t c2, float t)
