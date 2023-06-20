@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/18 14:35:50 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/20 02:23:41 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/20 14:57:53 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ int	min(int a, int b)
 	return (b);
 }
 
-int	ft_abs(int x)
+int64_t	ft_abs(int64_t x)
 {
 	if (x >= 0)
 		return (x);

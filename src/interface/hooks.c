@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/20 02:54:56 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/20 03:13:55 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/20 17:05:39 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,11 @@
 
 int	close_win(t_vars *vars)
 {
-	puts("Closed Window !");
 	mlx_destroy_image(vars->mlx, vars->img->img);
 	mlx_destroy_window(vars->mlx, vars->win);
-
 	while (vars->rows--)
 		free(vars->pts[vars->rows]);
-	exit(system("leaks fdf"));
+	exit(0);
 }
 
 int	hook_rot_dist(t_vars *vars, int keycode)
@@ -80,10 +78,8 @@ int	hook_bonus_trans(t_vars *vars, int keycode)
 	return (1);
 }
 
-
 int	rotation_handler(int keycode, t_vars *vars)
 {
-	printf("Clicked %d\n", keycode);
 	if (!hook_rot_dist(vars, keycode) && !hook_bonus_trans(vars, keycode))
 		return (0);
 	if (vars->fov < 0)
@@ -92,10 +88,8 @@ int	rotation_handler(int keycode, t_vars *vars)
 	return (0);
 }
 
-
 int	zoom_handler(int keycode, int x, int y, t_vars *vars)
 {
-	printf("Clicked %d\n", keycode);
 	if (keycode == SCROLL_UP)
 		vars->scale += 5;
 	else if (keycode == SCROLL_DOWN)

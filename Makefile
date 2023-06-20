@@ -1,6 +1,6 @@
 NAME = fdf
 
-CFLAGS = -Wall -Wextra -Werror -O3 -g#-Ofast #-fsanitize=address #-g
+CFLAGS = -Wall -Wextra -Werror -O3 -Ofast #-fsanitize=address #-g
 
 LINK_H = -I/usr/include -Imlx_linux
 
@@ -28,6 +28,7 @@ SRCS_PARSER = ft_split.c \
 			  ft_lstmap.c \
 			  ft_lstnew.c \
 			  ft_lstsize.c \
+			  ft_free_3.c \
 			  parser.c
 
 SRCS_MATHS = maths.c \

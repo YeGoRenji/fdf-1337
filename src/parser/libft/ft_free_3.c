@@ -1,19 +1,20 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   consts.h                                           :+:      :+:    :+:   */
+/*   ft_free_3.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/06/19 14:29:32 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/20 17:00:27 by ylyoussf         ###   ########.fr       */
+/*   Created: 2023/06/20 16:06:33 by ylyoussf          #+#    #+#             */
+/*   Updated: 2023/06/20 16:09:34 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef CONSTS_H
-# define CONSTS_H
+#include "../../../include/parser.h"
 
-# define WINDOW_WIDTH 1280
-# define WINDOW_HEIGHT 720
-
-#endif
+void	ft_free_3(void *ptr1, void *ptr2, void *ptr3)
+{
+	free(ptr1);
+	free(ptr2);
+	free(ptr3);
+}

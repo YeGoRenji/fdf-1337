@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/15 18:18:54 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/19 19:11:01 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/20 16:38:44 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,12 @@
 
 int	mod(int x, int n)
 {
-	if (x < 0)
-		x = -x;
+	while (x < 0)
+		x += n;
 	return (x % n);
 }
 
-float	get_error(t_point *to_draw, t_point *pt1, t_point *pt2)
+float	err(t_point *to_draw, t_point *pt1, t_point *pt2)
 {
 	float	actual_y;
 	float	our_y;
@@ -29,12 +29,12 @@ float	get_error(t_point *to_draw, t_point *pt1, t_point *pt2)
 	return (actual_y - our_y);
 }
 
-float	lerp(uint32_t a, uint32_t b, float t)
+uint8_t	lerp(uint8_t a, uint8_t b, float t)
 {
 	return (a * (1 - t) + b * t);
 }
 
-float	inv_lerp(int16_t a, int16_t b, uint32_t x)
+float	inv_lerp(int64_t a, int64_t b, int64_t x)
 {
 	if (b == a)
 		return (0);

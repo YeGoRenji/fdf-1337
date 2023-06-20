@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/16 18:24:41 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/20 03:20:13 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/20 17:03:28 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,13 @@
 # include <math.h>
 # include <mlx.h>
 
+typedef struct s_dir
+{
+	int	x;
+	int	y;
+	int	is_flipped;
+}				t_dir;
+
 typedef struct s_point {
 	int64_t		x;
 	int64_t		y;
@@ -28,9 +35,9 @@ typedef struct s_point {
 
 typedef struct s_vect3d
 {
-	double x;
-	double y;
-	double z;
+	double		x;
+	double		y;
+	double		z;
 	uint32_t	color;
 }				t_vect3d;
 
@@ -56,19 +63,19 @@ typedef struct s_vars {
 	t_vect3d	**pts;
 	int			rows;
 	int			cols;
-	// Translation
+
 	double		x;
 	double		y;
-	double		dist; // z distance
-	// Rotation
+	double		dist;
+
 	double		alpha;
 	double		beta;
 	double		gamma;
-	// Weak prespective
+
 	double		fov;
-	// Scale
+
 	int			scale;
-	// feature
+
 	int			is_color_gradient;
 	int			max;
 	int			min;

@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/17 15:08:18 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/19 15:23:33 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/20 16:41:46 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,19 +61,22 @@ void	split_map(t_vars *vars, t_list **map, int fd)
 	while (str)
 	{
 		str = get_next_line(fd);
-		if (str)
-		{
-			vars->rows++;
-			if (ft_strchr(str, '\n'))
-				str[ft_strlen(str) - 1] = '\0';
-		}
+		if (!str)
+			break ;
+		vars->rows++;
+		if (ft_strchr(str, '\n'))
+			str[ft_strlen(str) - 1] = '\0';
 		if (vars->cols < 0)
 			vars->cols = count_words(str, ' ');
-		else if (str && count_words(str, ' ') != vars->cols)
+		else if (count_words(str, ' ') != vars->cols)
+		{
+			write(2, "Error: Map not square !", 23);
 			return (ft_lstclear(map, free_split), exit(-1));
+		}
 		split = ft_split(str, ' ');
-		if (split)
-			ft_lstadd_back(map, ft_lstnew(split));
+		if (!split)
+			return (perror("fdf"), exit(-1));
+		ft_lstadd_back(map, ft_lstnew(split));
 		free(str);
 	}
 }
@@ -106,7 +109,6 @@ void	parse_map(t_vars *vars, t_list *map)
 	}
 }
 
-//! Handle maps that are not Squared please or SEGS (Error String)
 void	handle_map(char *file_path, t_vars *vars)
 {
 	int		fd;

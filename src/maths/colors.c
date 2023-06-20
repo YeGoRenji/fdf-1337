@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/15 18:19:04 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/20 03:40:06 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/20 16:43:35 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,16 +47,14 @@ uint32_t	get_shade(uint32_t col, float shade)
 		(col & 0x00FF00) >> 8,
 		(col & 0x0000FF) >> 0
 	};
-	uint8_t alpha = (1 - shade) * 0xFF;
-	// if (shade < 0)
-	// 	shade = 0;
-	// if (shade > 1)
-	// 	shade = 1;
-	// color.r *= shade;
-	// color.g *= shade;
-	// color.b *= shade;
-	// return (color.r << 16 | color.g << 8 | color.b);
-	return (alpha << 24 | color.r << 16 | color.g << 8 | color.b);
+	if (shade < 0)
+		shade = 0;
+	if (shade > 1)
+		shade = 1;
+	color.r *= shade;
+	color.g *= shade;
+	color.b *= shade;
+	return (color.r << 16 | color.g << 8 | color.b);
 }
 
 uint32_t	lerp_color(uint32_t c1, uint32_t c2, float t)
@@ -83,7 +81,7 @@ uint32_t	lerp_color(uint32_t c1, uint32_t c2, float t)
 	return (result.r << 16 | result.g << 8 | result.b);
 }
 
-float	gradient(t_point *pt1, t_point *pt2, uint16_t x)
+uint32_t	gradient(t_point *pt1, t_point *pt2, int64_t x)
 {
 	return (lerp_color(pt1->color, pt2->color, inv_lerp(pt1->x, pt2->x, x)));
 }

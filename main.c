@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/11 17:24:11 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/15 16:41:12 ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/20 16:59:07 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,8 @@ int	main(int argc, char **argv)
 	if (argc != 2)
 		exit(write(2, "Usage: ./fdf <file_name>\n", 25));
 	handle_map(argv[1], &vars);
-
+	if (vars.rows == 0 || vars.cols == 0)
+		exit(write(2, "Error: No data found\n", 21));
 	init_vars(&vars, &img_data);
 	vars.mlx = mlx_init();
 	vars.win = mlx_new_window(vars.mlx, WINDOW_WIDTH, WINDOW_HEIGHT, "FdF");
