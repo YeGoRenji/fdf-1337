@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/17 15:08:18 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/20 16:41:46 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2023/06/20 17:57:49 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ void	split_map(t_vars *vars, t_list **map, int fd)
 			vars->cols = count_words(str, ' ');
 		else if (count_words(str, ' ') != vars->cols)
 		{
-			write(2, "Error: Map not square !", 23);
+			write(2, "Error: Map not square !\n", 24);
 			return (ft_lstclear(map, free_split), exit(-1));
 		}
 		split = ft_split(str, ' ');
