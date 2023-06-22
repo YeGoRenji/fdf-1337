@@ -14,7 +14,8 @@
 
 void	clear_console(void)
 {
-	write(1, "\e[1;1H\e[2J", 10);
+	int a = write(1, "\e[1;1H\e[2J", 10);
+	(void)a;
 }
 
 // ! Debug purposes

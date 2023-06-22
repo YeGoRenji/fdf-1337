@@ -70,7 +70,8 @@ void	split_map(t_vars *vars, t_list **map, int fd)
 			vars->cols = count_words(str, ' ');
 		else if (count_words(str, ' ') != vars->cols)
 		{
-			write(2, "Error: Map not square !\n", 24);
+			int a = write(2, "Error: Map not square !\n", 24);
+			(void)a;
 			return (ft_lstclear(map, free_split), exit(-1));
 		}
 		split = ft_split(str, ' ');

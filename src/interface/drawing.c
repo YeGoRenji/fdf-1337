@@ -93,9 +93,11 @@ void	redraw(t_vars *vars)
 		while (j < vars->cols)
 		{
 			angle_points(vars, p, i, j);
-			(!p[0] || !p[1] || !p[2]) && (ft_free_3(p[0], p[1], p[2]), ++j);
 			if (!p[0] || !p[1] || !p[2])
+			{
+				(ft_free_3(p[0], p[1], p[2]), ++j);
 				continue ;
+			}
 			if (i < vars->rows - 1)
 				draw_line(vars, *p[0], *p[1]);
 			if (j < vars->cols - 1)
