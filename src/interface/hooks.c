@@ -6,7 +6,7 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/20 02:54:56 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/21 17:05:44 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2024/05/09 13:14:29 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,25 +25,25 @@ int	close_win(t_vars *vars)
 int	hook_rot_dist(t_vars *vars, int keycode)
 {
 	if (keycode == KEY_Q)
-		vars->alpha += TAU / 32;
+		vars->alpha += ROT_SPEED;
 	else if (keycode == KEY_A)
-		vars->alpha -= TAU / 32;
+		vars->alpha -= ROT_SPEED;
 	else if (keycode == KEY_W)
-		vars->beta += TAU / 32;
+		vars->beta += ROT_SPEED;
 	else if (keycode == KEY_S)
-		vars->beta -= TAU / 32;
+		vars->beta -= ROT_SPEED;
 	else if (keycode == KEY_E)
-		vars->gamma += TAU / 32;
+		vars->gamma += ROT_SPEED;
 	else if (keycode == KEY_D)
-		vars->gamma -= TAU / 32;
+		vars->gamma -= ROT_SPEED;
 	else if (keycode == KEY_Y)
-		vars->dist += 0.5;
+		vars->dist += DIST_SPEED;
 	else if (keycode == KEY_H)
-		vars->dist -= 0.5;
+		vars->dist -= DIST_SPEED;
 	else if (keycode == KEY_T)
-		vars->fov += 0.5;
+		vars->fov += FOV_SPEED;
 	else if (keycode == KEY_G)
-		vars->fov -= 0.5;
+		vars->fov -= FOV_SPEED;
 	else
 		return (0);
 	return (1);

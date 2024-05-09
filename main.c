@@ -6,10 +6,11 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/11 17:24:11 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/20 16:59:07 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2024/05/09 13:16:38 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <limits.h>
 #include "include/parser.h"
 #include "include/keys.h"
 #include "include/maths.h"
@@ -38,6 +39,8 @@ int	main(int argc, char **argv)
 
 	if (argc != 2)
 		exit(write(2, "Usage: ./fdf <file_name>\n", 25));
+	vars.min = INT_MAX;
+	vars.max = INT_MIN;
 	handle_map(argv[1], &vars);
 	if (vars.rows == 0 || vars.cols == 0)
 		exit(write(2, "Error: No data found\n", 21));
@@ -47,6 +50,7 @@ int	main(int argc, char **argv)
 	img_data.img = mlx_new_image(vars.mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
 	img_data.addr = mlx_get_data_addr(img_data.img, &img_data.bits_per_pixel,
 			&img_data.line_length, &img_data.endian);
+	mlx_put_image_to_window(vars.mlx, vars.win, vars.img->img, 0, 0);
 	redraw(&vars);
 	mlx_hook(vars.win, 17, 0, close_win, &vars);
 	mlx_mouse_hook(vars.win, zoom_handler, &vars);

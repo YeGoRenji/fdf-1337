@@ -6,14 +6,14 @@
 /*   By: ylyoussf <ylyoussf@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/06/15 18:08:26 by ylyoussf          #+#    #+#             */
-/*   Updated: 2023/06/20 17:02:24 by ylyoussf         ###   ########.fr       */
+/*   Updated: 2024/05/09 13:10:42 by ylyoussf         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MATHS_H
 # define MATHS_H
 # include "structs.h"
-# define TAU 6.2831853071795864
+# include "consts.h"
 
 int			mod(int x, int n);
 uint8_t		lerp(uint8_t a, uint8_t b, float t);
