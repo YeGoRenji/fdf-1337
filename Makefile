@@ -1,6 +1,6 @@
 NAME = fdf
 
-CFLAGS = -Wall -Wextra -Werror -O3 -Ofast #-fsanitize=address #-g
+CFLAGS = -Wall -Wextra -Werror  -Ofast #-O3#-fsanitize=address #-g
 
 LINK_H = -I/usr/include -Imlx_linux
 
